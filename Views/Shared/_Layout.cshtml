@@ -1,0 +1,119 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - CHBDN Store</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+
+@{
+        bool hideHeader = (bool?)ViewData["HideHeader"] ?? false;
+        string bodyClass = hideHeader ? "no-header" : "has-header";
+}
+
+<body class="d-flex flex-column min-vh-100 @bodyClass">
+
+    @if (!hideHeader)
+    {
+        <header class="fixed-top transition-header">
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-3">
+                <div class="container">
+                    <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                        <i class="fas fa-compact-disc me-2"></i>CHBDN
+                    </a>
+
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <div class="collapse navbar-collapse" id="navMain">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index" asp-route-category="Vinyl">Vinyl</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index" asp-route-category="CD">CD</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index" asp-route-category="Cassette">Cassette</a></li>
+                        </ul>
+
+                        <form class="d-flex me-3" asp-controller="Product" asp-action="Search" method="get">
+                            <div class="input-group input-group-sm">
+                                <input class="form-control bg-dark text-white border-secondary" type="search" placeholder="Tìm kiếm..." name="query" style="width: 200px;">
+                                <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-search"></i></button>
+                            </div>
+                        </form>
+
+                        <ul class="navbar-nav align-items-center gap-3">
+                            <li class="nav-item">
+                                <a class="nav-link position-relative" asp-controller="Cart" asp-action="Index" title="Giỏ hàng">
+                                    <i class="bi bi-cart3 fs-5"></i>
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill badge-cart">0</span>
+                                </a>
+                            </li>
+                            <partial name="_LoginPartial" />
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </header>
+    }
+
+    <main class="flex-grow-1 d-flex flex-column">
+        <div class="container py-4">
+            @RenderBody()
+        </div>
+    </main>
+
+    <footer class="mt-auto py-5">
+        <div class="container">
+            <div class="row gy-4">
+                <div class="col-lg-4 col-md-6">
+                    <h5 class="mb-3"><i class="fas fa-record-vinyl me-2"></i>CHBDN Store</h5>
+                    <p class="small text-muted mb-3">
+                        Nơi lưu giữ những giai điệu đi cùng năm tháng. Chuyên cung cấp đĩa than, CD, Cassette chính hãng và các ấn phẩm âm nhạc độc lập.
+                    </p>
+                    <p class="small text-muted">&copy; 2025 CHBDN Store. All rights reserved.</p>
+                </div>
+
+                <div class="col-lg-2 col-md-6">
+                    <h5>Khám phá</h5>
+                    <ul class="list-unstyled text-small">
+                        <li class="mb-1"><a href="#">Đĩa than mới về</a></li>
+                        <li class="mb-1"><a href="#">Bán chạy nhất</a></li>
+                        <li class="mb-1"><a href="#">Pre-order</a></li>
+                        <li class="mb-1"><a href="#">Phụ kiện</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-2 col-md-6">
+                    <h5>Hỗ trợ</h5>
+                    <ul class="list-unstyled text-small">
+                        <li class="mb-1"><a href="#">Hướng dẫn mua hàng</a></li>
+                        <li class="mb-1"><a href="#">Chính sách đổi trả</a></li>
+                        <li class="mb-1"><a href="#">Vận chuyển</a></li>
+                        <li class="mb-1"><a href="#">Liên hệ</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-4 col-md-6 text-lg-end text-center">
+                    <h5 class="mb-3">Kết nối với chúng tôi</h5>
+                    <div class="d-flex justify-content-lg-end justify-content-center">
+                        <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-youtube"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-tiktok"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

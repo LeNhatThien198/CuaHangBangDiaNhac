@@ -1,0 +1,60 @@
+﻿@model ExternalLoginConfirmViewModel
+
+@{
+    ViewData["Title"] = "Xác thực thông tin";
+    ViewData["HideHeader"] = true; 
+}
+
+<div class="row justify-content-center align-items-center min-vh-100 py-5">
+    <div class="col-md-5 col-lg-4">
+        <div class="card shadow-lg border-0 rounded-3">
+            <div class="card-body p-4 p-sm-5">
+
+                <div class="text-center mb-4">
+                    <div class="mb-3 text-success">
+                        <i class="bi bi-check-circle-fill" style="font-size: 3rem;"></i>
+                    </div>
+                    <h4 class="fw-bold">Hoàn tất đăng ký</h4>
+                    <p class="text-muted small">
+                        Bạn đã xác thực thành công với <strong>Google</strong>. <br />
+                        Vui lòng bổ sung số điện thoại để hoàn tất.
+                    </p>
+                </div>
+
+                <form asp-action="ExternalLoginConfirmation" method="post" asp-route-returnUrl="@ViewData["ReturnUrl"]">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3 small"></div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="Email" class="form-control bg-light" readonly />
+                        <label asp-for="Email">Email liên kết</label>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="FullName" class="form-control" placeholder="Họ tên" />
+                        <label asp-for="FullName">Họ và tên</label>
+                        <span asp-validation-for="FullName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-floating mb-4">
+                        <input asp-for="PhoneNumber" class="form-control" placeholder="Số điện thoại" />
+                        <label asp-for="PhoneNumber"></label>
+                        <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success btn-lg">Hoàn tất & Đăng nhập</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="text-center mt-3">
+            <a asp-action="Login" class="text-muted small text-decoration-none">
+                <i class="bi bi-arrow-left me-1"></i>Hủy bỏ và quay lại
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
