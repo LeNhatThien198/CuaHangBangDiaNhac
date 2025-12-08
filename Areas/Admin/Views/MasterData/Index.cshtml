@@ -1,0 +1,321 @@
+﻿@model MasterDataVM
+@{
+    ViewData["Title"] = "Quản lý Danh mục";
+
+    string activeTab = ViewBag.ActiveTab as string ?? "artist";
+    string breadcrumbName = "Nghệ sĩ"; 
+
+    switch (activeTab)
+    {
+        case "brand": breadcrumbName = "Nhà phát hành"; break;
+        case "category": breadcrumbName = "Định dạng"; break;
+        case "artist": breadcrumbName = "Nghệ sĩ"; break;
+    }
+}
+
+<div class="page-header d-flex justify-content-between align-items-center mb-3">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item">
+                <span class="text-muted fw-bold"><i class="bi bi-disc me-1"></i>Sản phẩm</span>
+            </li>
+            <li class="breadcrumb-item active fw-bold text-dark" aria-current="page" id="dynamic-breadcrumb">
+                @breadcrumbName
+            </li>
+        </ol>
+    </nav>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-white p-0 border-bottom">
+        <ul class="nav nav-tabs ps-3 pt-3 master-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link @(activeTab == "artist" ? "active" : "")" 
+                        id="artist-tab" data-bs-toggle="tab" data-bs-target="#artist-pane" type="button"
+                        data-breadcrumb="Nghệ sĩ">
+                    <i class="bi bi-mic-fill me-2"></i>Nghệ sĩ
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link @(activeTab == "brand" ? "active" : "")" 
+                        id="brand-tab" data-bs-toggle="tab" data-bs-target="#brand-pane" type="button"
+                        data-breadcrumb="Nhà phát hành">
+                    <i class="bi bi-building me-2"></i>Nhà phát hành
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link @(activeTab == "category" ? "active" : "")" 
+                        id="category-tab" data-bs-toggle="tab" data-bs-target="#category-pane" type="button"
+                        data-breadcrumb="Định dạng">
+                    <i class="bi bi-disc-fill me-2"></i>Định dạng
+                </button>
+            </li>
+        </ul>
+    </div>
+
+    <div class="card-body bg-white border-top">
+        <div class="tab-content" id="masterDataTabContent">
+            
+            <div class="tab-pane fade @(activeTab == "artist" ? "show active" : "")" id="artist-pane">
+                <div class="row g-4">
+                    <div class="col-lg-4">
+                        <div class="form-card p-4">
+                            <h5 class="fw-bold mb-3"><i class="bi bi-plus-circle me-2"></i>Thêm mới</h5>
+                            <form asp-action="CreateArtist" method="post">
+                                <div class="mb-3">
+                                    <label asp-for="NewArtist.Name" class="form-label small text-muted fw-bold"></label>
+                                    <input asp-for="NewArtist.Name" class="form-control" placeholder="Nhập tên..." />
+                                    <span asp-validation-for="NewArtist.Name" class="text-danger small"></span>
+                                </div>
+                                <button type="submit" class="btn btn-dark w-100 fw-bold py-2">Lưu dữ liệu</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="col-lg-8">
+                        <div class="table-card bg-white">
+                            <div class="p-3 border-bottom bg-light toolbar-container">
+                                <h6 class="mb-0 fw-bold toolbar-title">Danh sách nghệ sĩ</h6>
+                                <div class="toolbar-actions">
+                                    <div class="input-group input-group-sm search-input-group flex-grow-1">
+                                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                                        <input type="text" id="searchArtist" class="form-control border-start-0" placeholder="Tìm nhanh..." onkeyup="searchTable('searchArtist', 'artistTable')">
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown">
+                                            <i class="bi bi-filter"></i> Sắp xếp
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                                            <li><h6 class="dropdown-header text-uppercase small fw-bold">Theo Tên</h6></li>
+                                            <li><a class="dropdown-item cursor-pointer" onclick="applySort('artistTable', 1, 'str', 'asc', this)"><i class="bi bi-sort-alpha-down me-2"></i>Tên (A-Z)</a></li>
+                                            <li><a class="dropdown-item cursor-pointer" onclick="applySort('artistTable', 1, 'str', 'desc', this)"><i class="bi bi-sort-alpha-down-alt me-2"></i>Tên (Z-A)</a></li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><h6 class="dropdown-header text-uppercase small fw-bold">Theo ID</h6></li>
+                                            <li><a class="dropdown-item cursor-pointer" onclick="applySort('artistTable', 0, 'num', 'asc', this)"><i class="bi bi-sort-numeric-down me-2"></i>ID Tăng dần</a></li>
+                                            <li><a class="dropdown-item cursor-pointer" onclick="applySort('artistTable', 0, 'num', 'desc', this)"><i class="bi bi-sort-numeric-down-alt me-2"></i>ID Giảm dần</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                                <table class="table table-hover align-middle mb-0" id="artistTable">
+                                    <thead class="table-light sticky-top">
+                                        <tr>
+                                            <th class="text-center" style="width: 60px;">ID</th>
+                                            <th>Tên nghệ sĩ</th>
+                                            <th class="text-center" style="width: 150px;">Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.Artists) {
+                                            <tr>
+                                                <td class="text-center text-muted small">#@item.Id</td>
+                                                <td class="fw-bold text-dark">@item.Name</td>
+                                                <td class="text-center">
+                                                    <button class="btn btn-outline-primary border-0 px-3" onclick="openEditModal(this)" data-url="@Url.Action("EditArtist", new { id = item.Id })"><i class="bi bi-pencil-square"></i></button>
+                                                    <form asp-action="DeleteArtist" asp-route-id="@item.Id" method="post" class="d-inline">
+                                                        <button type="button" class="btn btn-outline-danger border-0 px-3" onclick="confirmDelete(this)"><i class="bi bi-trash"></i></button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade @(activeTab == "brand" ? "show active" : "")" id="brand-pane">
+                <div class="row g-4">
+                    <div class="col-lg-4">
+                        <div class="form-card p-4">
+                            <h5 class="fw-bold mb-3"><i class="bi bi-plus-circle me-2"></i>Thêm mới</h5>
+                            <form asp-action="CreateBrand" method="post">
+                                <div class="mb-3">
+                                    <label asp-for="NewBrand.Name" class="form-label small text-muted fw-bold"></label>
+                                    <input asp-for="NewBrand.Name" class="form-control" placeholder="Nhập tên hãng..." />
+                                    <span asp-validation-for="NewBrand.Name" class="text-danger small"></span>
+                                </div>
+                                <button type="submit" class="btn btn-dark w-100 fw-bold py-2">Lưu dữ liệu</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="col-lg-8">
+                         <div class="table-card bg-white">
+                             <div class="p-3 border-bottom bg-light toolbar-container">
+                                <h6 class="mb-0 fw-bold toolbar-title">Danh sách nhà phát hành</h6>
+                                <div class="toolbar-actions">
+                                    <div class="input-group input-group-sm search-input-group flex-grow-1">
+                                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                                        <input type="text" id="searchBrand" class="form-control border-start-0" placeholder="Tìm nhanh..." onkeyup="searchTable('searchBrand', 'brandTable')">
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown">
+                                            <i class="bi bi-filter"></i> Sắp xếp
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                                            <li><h6 class="dropdown-header text-uppercase small fw-bold">Theo Tên</h6></li>
+                                            <li><a class="dropdown-item cursor-pointer" onclick="applySort('brandTable', 1, 'str', 'asc', this)"><i class="bi bi-sort-alpha-down me-2"></i>Tên (A-Z)</a></li>
+                                            <li><a class="dropdown-item cursor-pointer" onclick="applySort('brandTable', 1, 'str', 'desc', this)"><i class="bi bi-sort-alpha-down-alt me-2"></i>Tên (Z-A)</a></li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><h6 class="dropdown-header text-uppercase small fw-bold">Theo ID</h6></li>
+                                            <li><a class="dropdown-item cursor-pointer" onclick="applySort('brandTable', 0, 'num', 'asc', this)"><i class="bi bi-sort-numeric-down me-2"></i>ID Tăng dần</a></li>
+                                            <li><a class="dropdown-item cursor-pointer" onclick="applySort('brandTable', 0, 'num', 'desc', this)"><i class="bi bi-sort-numeric-down-alt me-2"></i>ID Giảm dần</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                                <table class="table table-hover align-middle mb-0" id="brandTable">
+                                    <thead class="table-light sticky-top">
+                                        <tr>
+                                            <th class="text-center" style="width: 60px;">ID</th>
+                                            <th>Tên hãng</th>
+                                            <th class="text-center" style="width: 150px;">Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.Brands) {
+                                            <tr>
+                                                <td class="text-center text-muted small">#@item.Id</td>
+                                                <td class="fw-bold text-dark">@item.Name</td>
+                                                <td class="text-center">
+                                                    <button class="btn btn-outline-primary border-0 px-3" onclick="openEditModal(this)" data-url="@Url.Action("EditBrand", new { id = item.Id })"><i class="bi bi-pencil-square"></i></button>
+                                                    <form asp-action="DeleteBrand" asp-route-id="@item.Id" method="post" class="d-inline">
+                                                        <button type="button" class="btn btn-outline-danger border-0 px-3" onclick="confirmDelete(this)"><i class="bi bi-trash"></i></button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade @(activeTab == "category" ? "show active" : "")" id="category-pane">
+                <div class="row g-4">
+                    <div class="col-lg-4">
+                        <div class="form-card p-4">
+                            <h5 class="fw-bold mb-3"><i class="bi bi-plus-circle me-2"></i>Thêm mới</h5>
+                            <form asp-action="CreateCategory" method="post">
+                                <div class="mb-3">
+                                    <label asp-for="NewCategory.Name" class="form-label small text-muted fw-bold"></label>
+                                    <input asp-for="NewCategory.Name" class="form-control" placeholder="VD: Vinyl, CD..." />
+                                    <span asp-validation-for="NewCategory.Name" class="text-danger small"></span>
+                                </div>
+                                <button type="submit" class="btn btn-dark w-100 fw-bold py-2">Lưu dữ liệu</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="col-lg-8">
+                        <div class="table-card bg-white">
+                            <div class="p-3 border-bottom bg-light toolbar-container">
+                                <h6 class="mb-0 fw-bold">Danh sách định dạng</h6>
+                                <div class="toolbar-actions">
+                                    <div class="input-group input-group-sm search-input-group flex-grow-1">
+                                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                                        <input type="text" id="searchCategory" class="form-control border-start-0" placeholder="Tìm nhanh..." onkeyup="searchTable('searchCategory', 'categoryTable')">
+                                    </div>
+
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="bi bi-filter"></i> Sắp xếp
+                                        </button>
+
+                                        <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                                            <li><h6 class="dropdown-header text-uppercase small fw-bold">Theo Tên</h6></li>
+                                            <li><a class="dropdown-item cursor-pointer" onclick="applySort('categoryTable', 1, 'str', 'asc', this)"><i class="bi bi-sort-alpha-down me-2"></i>Tên (A-Z)</a></li>
+                                            <li><a class="dropdown-item cursor-pointer" onclick="applySort('categoryTable', 1, 'str', 'desc', this)"><i class="bi bi-sort-alpha-down-alt me-2"></i>Tên (Z-A)</a></li>
+
+                                            <li><hr class="dropdown-divider"></li>
+
+                                            <li><h6 class="dropdown-header text-uppercase small fw-bold">Theo ID</h6></li>
+                                            <li><a class="dropdown-item cursor-pointer" onclick="applySort('categoryTable', 0, 'num', 'asc', this)"><i class="bi bi-sort-numeric-down me-2"></i>ID Tăng dần</a></li>
+                                            <li><a class="dropdown-item cursor-pointer" onclick="applySort('categoryTable', 0, 'num', 'desc', this)"><i class="bi bi-sort-numeric-down-alt me-2"></i>ID Giảm dần</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                                <table class="table table-hover align-middle mb-0" id="categoryTable">
+                                    <thead class="table-light sticky-top">
+                                        <tr>
+                                            <th style="width: 60px;" class="text-center">ID</th>
+                                            <th>Loại định dạng</th>
+                                            <th class="text-center" style="width: 180px;">Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.Categories)
+                                        {
+                                            <tr>
+                                                <td class="text-center text-muted small">#@item.Id</td>
+                                                <td class="fw-bold text-dark text-truncate-custom" title="@item.Name">@item.Name</td>
+                                                <td class="text-center">
+                                                    <button class="btn btn-outline-primary border-0 me-2 px-3"
+                                                            onclick="openEditModal(this)"
+                                                            data-url="@Url.Action("EditCategory", new { id = item.Id })">
+                                                        <i class="bi bi-pencil-square fs-6"></i>
+                                                    </button>
+                                                    <form asp-action="DeleteCategory" asp-route-id="@item.Id" method="post" class="d-inline">
+                                                        <button type="button" class="btn btn-outline-danger border-0 px-3"
+                                                                onclick="confirmDelete(this)">
+                                                            <i class="bi bi-trash fs-6"></i>
+                                                        </button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title fw-bold">Cập nhật thông tin</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div id="modalContainer"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var breadcrumbText = document.getElementById("dynamic-breadcrumb");
+            var tabs = document.querySelectorAll('button[data-bs-toggle="tab"]');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('shown.bs.tab', function (event) {
+                    var newText = event.target.getAttribute("data-breadcrumb");
+                    if(breadcrumbText && newText) {
+                        breadcrumbText.textContent = newText;
+                    }
+                });
+            });
+        });
+    </script>
+}

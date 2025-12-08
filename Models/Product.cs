@@ -26,6 +26,10 @@ namespace CuaHangBangDiaNhac.Models
         public decimal Price { get; set; }
 
         [Precision(18, 2)]
+        [Display(Name = "Giá khuyến mãi")]
+        public decimal? PromotionPrice { get; set; }
+
+        [Precision(18, 2)]
         [Display(Name = "Giá vốn")]
         public decimal Cost { get; set; }
 

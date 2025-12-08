@@ -1,0 +1,125 @@
+﻿/* --- COMPONENT: BUTTONS & INPUTS --- */
+.form-control {
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+    padding: 10px 15px;
+}
+
+    .form-control:focus {
+        border-color: #555;
+        box-shadow: 0 0 0 0.2rem rgba(80, 80, 80, 0.25);
+    }
+
+.btn-dark {
+    background-color: #222;
+    border-color: #222;
+    padding: 10px 20px;
+    font-weight: 600;
+}
+
+    .btn-dark:hover {
+        background-color: #000;
+        border-color: #000;
+    }
+
+/* --- COMPONENT: PRODUCT UI --- */
+.product-card {
+    border: none;
+    background: #fff;
+    transition: transform 0.3s, box-shadow 0.3s;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+.badge-cart {
+    background-color: #e63946 !important;
+    font-size: 0.65rem;
+}
+
+/* --- COMPONENT: SOCIAL & AUTH --- */
+.social-icon {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #333;
+    color: #fff;
+    margin-left: 10px;
+    transition: all 0.3s;
+}
+
+    .social-icon:hover {
+        background: #fff;
+        color: #000;
+        transform: rotate(360deg);
+    }
+
+.btn-google {
+    background-color: #fff;
+    color: #3c4043;
+    border: 1px solid #dadce0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    transition: all 0.2s ease;
+    position: relative;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+    .btn-google:hover {
+        background-color: #f8f9fa;
+        border-color: #dadce0;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        color: #202124;
+    }
+
+    .btn-google:active {
+        background-color: #f1f3f4;
+        box-shadow: none;
+    }
+
+.google-icon {
+    width: 20px;
+    height: 20px;
+}
+.pagination .page-link {
+    color: #212529; /* Màu chữ đen (Dark) */
+    border: 1px solid #dee2e6;
+    background-color: #fff;
+}
+
+    /* 2. Hiệu ứng khi di chuột (Hover) */
+    .pagination .page-link:hover {
+        color: #000;
+        background-color: #e9ecef; /* Xám nhạt */
+        border-color: #dee2e6;
+    }
+
+/* 3. Nút đang chọn (Active) - NỀN ĐEN, CHỮ TRẮNG */
+.pagination .page-item.active .page-link {
+    z-index: 3;
+    color: #fff !important; /* Chữ trắng */
+    background-color: #212529 !important; /* Nền đen (bg-dark) */
+    border-color: #212529 !important; /* Viền đen */
+}
+
+/* 4. Nút bị vô hiệu hóa (Disabled) - Ví dụ nút Trước/Sau khi hết trang */
+.pagination .page-item.disabled .page-link {
+    color: #6c757d;
+    background-color: #fff;
+    border-color: #dee2e6;
+}
+
+/* 5. Xóa viền xanh (Focus outline) khi bấm vào */
+.pagination .page-link:focus {
+    box-shadow: 0 0 0 0.25rem rgba(33, 37, 41, 0.25); /* Shadow màu đen nhạt thay vì xanh */
+}

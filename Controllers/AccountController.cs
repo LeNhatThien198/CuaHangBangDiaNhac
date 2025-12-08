@@ -40,11 +40,23 @@ namespace CuaHangBangDiaNhac.Controllers
 
                 if (user != null)
                 {
-                    var result = await _signInManager.PasswordSignInAsync(user.UserName, model.Password, model.RememberMe, lockoutOnFailure: false);
+                    var result = await _signInManager.PasswordSignInAsync(
+                        user.UserName,
+                        model.Password,
+                        model.RememberMe,
+                        lockoutOnFailure: true);
+
                     if (result.Succeeded)
                     {
                         return LocalRedirect(returnUrl);
                     }
+
+                    if (result.IsLockedOut)
+                    {
+                        ViewData["BannedAccount"] = true;
+                        return View(model);
+                    }
+
                 }
                 ModelState.AddModelError(string.Empty, "Tài khoản hoặc mật khẩu không chính xác.");
             }
@@ -181,11 +193,17 @@ namespace CuaHangBangDiaNhac.Controllers
 
         [AcceptVerbs("GET", "POST")]
         [AllowAnonymous]
-        public async Task<IActionResult> VerifyUsername(string username)
+        public async Task<IActionResult> VerifyUsername(string username, string? id)
         {
             var user = await _userManager.FindByNameAsync(username);
+
             if (user != null)
             {
+                if (!string.IsNullOrEmpty(id) && user.Id == id)
+                {
+                    return Json(true);
+                }
+
                 return Json($"Tên đăng nhập '{username}' đã được sử dụng.");
             }
             return Json(true);
@@ -193,11 +211,17 @@ namespace CuaHangBangDiaNhac.Controllers
 
         [AcceptVerbs("GET", "POST")]
         [AllowAnonymous]
-        public async Task<IActionResult> VerifyEmail(string email)
+        public async Task<IActionResult> VerifyEmail(string email, string? id)
         {
             var user = await _userManager.FindByEmailAsync(email);
+
             if (user != null)
             {
+                if (!string.IsNullOrEmpty(id) && user.Id == id)
+                {
+                    return Json(true);
+                }
+
                 return Json($"Email '{email}' đã được sử dụng.");
             }
             return Json(true);
