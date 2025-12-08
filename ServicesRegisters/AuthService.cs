@@ -25,8 +25,8 @@ public static class AuthService
             });
 
         services.ConfigureApplicationCookie(options => {
-            options.LoginPath = "/Account/Login";        // Chưa đăng nhập thì về đây
-            options.AccessDeniedPath = "/Account/AccessDenied"; // Không đủ quyền (VD: khách vào trang Admin) thì về đây
+            options.LoginPath = "/Account/Login";        
+            options.AccessDeniedPath = "/Account/AccessDenied"; 
         });
 
         return services;

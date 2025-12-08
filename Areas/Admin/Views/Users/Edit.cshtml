@@ -1,0 +1,86 @@
+﻿@model EditUserVM
+
+@{
+    ViewData["Title"] = "Cập nhật người dùng";
+}
+
+<div class="page-header">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a asp-action="Index"><i class="bi bi-people me-1"></i>Tài khoản</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">Cập nhật</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">Cập nhật thông tin</h5>
+                <span class="badge bg-secondary">Tài khoản: @Model.UserName</span>
+            </div>
+            <div class="card-body p-4">
+                <form asp-area="Admin" asp-controller="Users" asp-action="Edit" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <div asp-validation-summary="All" class="text-danger mb-3 small"></div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="FullName" class="form-label small fw-bold text-muted"></label>
+                            <input asp-for="FullName" class="form-control" placeholder="Nhập họ tên..." />
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="PhoneNumber" class="form-label small fw-bold text-muted"></label>
+                            <input asp-for="PhoneNumber" class="form-control" placeholder="09xxxx..." />
+                            <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="UserName" class="form-label small fw-bold text-muted"></label>
+                        <input asp-for="UserName" class="form-control" placeholder="Tên đăng nhập" />
+                        <span asp-validation-for="UserName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label small fw-bold text-muted"></label>
+                        <input asp-for="Email" class="form-control" placeholder="name@gmail.com" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Role" class="form-label small fw-bold text-muted"></label>
+                        <select asp-for="Role" asp-items="ViewBag.Roles" class="form-select"></select>
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <div class="bg-light p-3 rounded border">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" asp-for="IsLocked">
+                            <label class="form-check-label fw-bold text-danger" asp-for="IsLocked">
+                                Khóa tài khoản này (Ban User)
+                            </label>
+                        </div>
+                        <p class="small text-muted mb-0 mt-1 ms-1">
+                            Người dùng bị khóa sẽ không thể đăng nhập vào hệ thống. Vai trò hiện tại vẫn được giữ nguyên.
+                        </p>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <a asp-action="Index" class="btn btn-light">Quay lại</a>
+                        <button type="submit" class="btn btn-primary px-4">Lưu thay đổi</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

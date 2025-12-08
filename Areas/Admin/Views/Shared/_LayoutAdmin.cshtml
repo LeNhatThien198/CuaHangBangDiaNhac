@@ -1,0 +1,161 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Admin Panel</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="~/lib/sweetalert2/sweetalert2.min.css" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin/components.css" asp-append-version="true" />
+</head>
+
+<body>
+    <script>
+        var sbState = localStorage.getItem('sb|sidebar-toggle');
+        if (sbState === 'true' || sbState === 'temp-open') {
+            document.body.classList.add('sb-sidenav-toggled');
+        }
+    </script>
+
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+            <div class="container-fluid">
+
+                <button class="btn" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <a class="navbar-brand fw-bold text-uppercase" asp-area="" asp-controller="Home" asp-action="Index" target="_blank">
+                    <i class="fas fa-record-vinyl me-2"></i>CHBDN <span class="badge bg-warning text-dark ms-1" style="font-size: 0.6rem;">ADMIN</span>
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbar">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="adminNavbar">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index" target="_blank">Xem Trang chủ</a></li>
+                        <li class="nav-item"><a class="nav-link text-white-50" href="#">Vinyl</a></li>
+                        <li class="nav-item"><a class="nav-link text-white-50" href="#">CD</a></li>
+                    </ul>
+
+                    <form class="d-flex me-3">
+                        <div class="input-group input-group-sm">
+                            <input class="form-control bg-secondary text-white border-0" type="search" placeholder="Tìm kiếm..." disabled>
+                            <button class="btn btn-secondary border-0" type="button"><i class="bi bi-search"></i></button>
+                        </div>
+                    </form>
+
+                    <ul class="navbar-nav align-items-center">
+                        <partial name="_LoginPartial" />
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div id="wrapper">
+        <div id="sidebar-wrapper">
+            <div class="sidebar-heading text-center">Quản trị hệ thống</div>
+            <div class="list-group list-group-flush mt-2">
+                <a class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Dashboard" ? "active" : "")"
+                   asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                    <i class="bi bi-speedometer2"></i>
+                    <span class="menu-text">Tổng quan</span>
+                    <span class="mini-label">Tổng quan</span>
+                </a>
+
+                <a class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Users" ? "active" : "")"
+                   asp-area="Admin" asp-controller="Users" asp-action="Index">
+                    <i class="bi bi-people"></i>
+                    <span class="menu-text">Tài khoản</span>
+                    <span class="mini-label">Tài khoản</span>
+                </a>
+
+                @{
+                    // 1. Xác định Controller hiện tại
+                    string currentCtrl = ViewContext.RouteData.Values["Controller"]?.ToString();
+
+                    // 2. Định nghĩa nhóm: Nếu đang ở bất kỳ trang con nào thuộc nhóm này -> isProductGroup = true
+                    bool isProductGroup = currentCtrl == "Product" || currentCtrl == "MasterData" ||
+                    currentCtrl == "Genre" || currentCtrl == "Style";
+
+                    // 3. Logic hiển thị:
+                    // - activeParent: Tô đen nút cha
+                    // - showClass: Mở bung menu con ngay khi load trang
+                    // - collapsedState: Xoay mũi tên xuống dưới
+                    string activeParent = isProductGroup ? "active" : "";
+                    string showClass = isProductGroup ? "show" : "";
+                    string collapsedState = isProductGroup ? "" : "collapsed";
+
+                    // Lấy tab query (để active đúng link con MasterData)
+                    string currentTab = Context.Request.Query["tab"].ToString().ToLower();
+                }
+
+                <a class="list-group-item list-group-item-action @activeParent @collapsedState"
+                   id="productMenuParent"
+                   asp-area="Admin" asp-controller="Product" asp-action="Index"
+                   aria-expanded="@(isProductGroup ? "true" : "false")">
+
+                    <i class="bi bi-disc"></i>
+                    <span class="menu-text">Sản phẩm</span>
+                    <span class="mini-label">Sản phẩm</span>
+                    <i class="bi bi-chevron-down menu-arrow"></i>
+                </a>
+
+                <div class="collapse sidebar-submenu @showClass" id="submenuProduct">
+
+                    <a class="list-group-item list-group-item-action @(currentCtrl == "Product" ? "active" : "")"
+                       asp-area="Admin" asp-controller="Product" asp-action="Index">
+                        Danh sách sản phẩm
+                    </a>
+
+                    <a class="list-group-item list-group-item-action @(currentCtrl == "MasterData" && (currentTab == "artist" || string.IsNullOrEmpty(currentTab)) ? "active" : "")"
+                       asp-area="Admin" asp-controller="MasterData" asp-action="Index" asp-route-tab="artist">
+                        Nghệ sĩ
+                    </a>
+
+                    <a class="list-group-item list-group-item-action @(currentCtrl == "MasterData" && currentTab == "brand" ? "active" : "")"
+                       asp-area="Admin" asp-controller="MasterData" asp-action="Index" asp-route-tab="brand">
+                        Nhà phát hành
+                    </a>
+
+                    <a class="list-group-item list-group-item-action @(currentCtrl == "MasterData" && currentTab == "category" ? "active" : "")"
+                       asp-area="Admin" asp-controller="MasterData" asp-action="Index" asp-route-tab="category">
+                        Định dạng
+                    </a>
+
+                    <a class="list-group-item list-group-item-action @(currentCtrl == "Genre" ? "active" : "")"
+                       asp-area="Admin" asp-controller="Genre" asp-action="Index">
+                        Thể loại & Phong cách
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-content-wrapper">
+            <div class="container-fluid">
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/sweetalert2/sweetalert2.all.min.js"></script>
+    <script src="~/js/admin/admin.js" asp-append-version="true"></script>
+    <script src="~/js/admin/delete.js" asp-append-version="true"></script>
+    <script src="~/js/admin/search.js" asp-append-version="true"></script>
+    <script src="~/js/admin/master-data/edit.js" asp-append-version="true"></script>
+    <script src="~/js/admin/master-data/sort.js" asp-append-version="true"></script>
+    <script src="~/js/admin/product-action.js" asp-append-version="true"></script>
+
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

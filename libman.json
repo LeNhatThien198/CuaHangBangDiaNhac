@@ -36,6 +36,11 @@
       "provider": "cdnjs",
       "library": "bootstrap-icons@1.13.1",
       "destination": "wwwroot/lib/bootstrap-icons/"
+    },
+    {
+      "provider": "cdnjs",
+      "library": "sweetalert2@11.23.0",
+      "destination": "wwwroot/lib/sweetalert2/"
     }
   ]
 }

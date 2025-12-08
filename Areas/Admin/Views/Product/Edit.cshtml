@@ -1,0 +1,261 @@
+﻿@model ProductInputVM
+@{
+    ViewData["Title"] = "Cập nhật sản phẩm";
+}
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data" id="editProductForm">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="CurrentCoverUrl" />
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="page-header m-0 d-block">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <span class="text-muted fw-bold"><i class="bi bi-disc me-1"></i>Sản phẩm</a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <a asp-action="Index" class="text-decoration-none">Danh sách sản phẩm</a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">Cập nhật</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Index" class="btn btn-light border">Hủy bỏ</a>
+            <button type="submit" class="btn btn-warning fw-bold px-4">Lưu thay đổi</button>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white border-bottom py-3 d-flex align-items-center">
+            <h6 class="mb-0 fw-bold me-2"><i class="bi bi-pencil-square me-2"></i>Cập nhật thông tin</h6>
+            <span class="badge bg-secondary">#@Model.Id</span>
+        </div>
+        <div class="row g-4">
+
+            <div class="col-lg-8">
+                <div class="sticky-wrapper">
+
+                    <div class="form-card p-4 mb-4">
+                        <h5 class="fw-bold mb-3 border-bottom pb-2">Thông tin chung</h5>
+
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label fw-bold"></label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label fw-bold"></label>
+                            <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Tracklist" class="form-label fw-bold"></label>
+                            <textarea asp-for="Tracklist" class="form-control font-monospace small bg-light" rows="8"></textarea>
+                            <div class="form-text">Nhập mỗi bài hát trên một dòng.</div>
+                        </div>
+                    </div>
+
+                    <div class="form-card p-4">
+                        <h5 class="fw-bold mb-3 border-bottom pb-2">Dữ liệu kinh doanh</h5>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="Price" class="form-label fw-bold"></label>
+                                <div class="input-group">
+                                    <input asp-for="Price" class="form-control" type="number" />
+                                    <span class="input-group-text fw-bold">VNĐ</span>
+                                </div>
+                                <span asp-validation-for="Price" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="PromotionPrice" class="form-label fw-bold text-danger"></label>
+                                <div class="input-group">
+                                    <input asp-for="PromotionPrice" class="form-control border-danger" type="number" placeholder="Không giảm giá" />
+                                    <span class="input-group-text text-danger bg-danger bg-opacity-10 border-danger">VNĐ</span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="Cost" class="form-label fw-bold text-muted"></label>
+                                <div class="input-group">
+                                    <input asp-for="Cost" class="form-control bg-light" type="number" />
+                                    <span class="input-group-text text-muted">VNĐ</span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="Quantity" class="form-label fw-bold"></label>
+                                <input asp-for="Quantity" class="form-control" type="number" />
+                                <span asp-validation-for="Quantity" class="text-danger small"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+
+                <div class="form-card p-4 mb-4">
+                    <h5 class="fw-bold mb-3 border-bottom pb-2">Hình ảnh</h5>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label asp-for="CoverImage" class="form-label fw-bold text-muted mb-0">Ảnh bìa chính</label>
+
+                            @if (!string.IsNullOrEmpty(Model.CurrentCoverUrl))
+                            {
+                                <span class="badge bg-light text-dark border" title="File hiện tại">
+                                    <i class="bi bi-file-earmark-image me-1"></i>
+                                    @System.IO.Path.GetFileName(Model.CurrentCoverUrl)
+                                </span>
+                            }
+                        </div>
+                        <input asp-for="CoverImage" class="form-control form-control-sm mb-2" accept="image/*" onchange="previewCover(this)" />
+
+                        <div class="border rounded cover-preview-container">
+                            <img id="coverPreview" src="@(string.IsNullOrEmpty(Model.CurrentCoverUrl) ? "#" : Model.CurrentCoverUrl)"
+                                 alt="Preview" class="cover-preview-img"
+                                 style="display: @(string.IsNullOrEmpty(Model.CurrentCoverUrl) ? "none" : "block");" />
+
+                            <div id="coverPlaceholder" class="cover-placeholder" style="display: @(string.IsNullOrEmpty(Model.CurrentCoverUrl) ? "flex" : "none");">
+                                <i class="bi bi-image fs-1 mb-2 text-opacity-25"></i>
+                                <span>Chưa chọn ảnh</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-0">
+                        <label class="form-label small fw-bold text-muted">Album ảnh phụ</label>
+                        <input asp-for="GalleryImages" class="form-control form-control-sm mb-2" multiple accept="image/*" onchange="previewGallery(this)" />
+                        <div class="form-text small mb-2"><i class="bi bi-info-circle me-1"></i>Giữ Ctrl để chọn nhiều ảnh.</div>
+
+                        @if (Model.CurrentGallery != null && Model.CurrentGallery.Any())
+                        {
+                            <div class="d-flex flex-wrap gap-2 mb-2 pb-2 border-bottom">
+                                @foreach (var img in Model.CurrentGallery)
+                                {
+                                    <div class="position-relative border rounded" style="width: 60px; height: 60px; overflow: hidden;" id="img-@img.Id">
+                                        <img src="@img.Url" style="width: 100%; height: 100%; object-fit: cover;" />
+                                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 p-0"
+                                                style="width: 18px; height: 18px; line-height: 1; font-size: 10px;"
+                                                onclick="deleteImage('@img.Id')">
+                                            &times;
+                                        </button>
+                                    </div>
+                                }
+                            </div>
+                        }
+
+                        <div id="galleryPreviewContainer" class="gallery-preview-container"></div>
+                    </div>
+                </div>
+
+                <div class="form-card p-4 mb-4">
+                    <h5 class="fw-bold mb-3 border-bottom pb-2">Phân loại</h5>
+
+                    <div class="mb-3">
+                        <label asp-for="ArtistId" class="form-label fw-bold small text-muted"></label>
+                        <div class="input-group">
+                            <select asp-for="ArtistId" asp-items="ViewBag.Artists" class="form-select"></select>
+                            <button type="button" class="btn btn-outline-secondary" onclick="quickAdd('Artist')" title="Thêm nhanh"><i class="bi bi-plus-lg"></i></button>
+                        </div>
+                        <span asp-validation-for="ArtistId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="BrandId" class="form-label fw-bold small text-muted"></label>
+                        <div class="input-group">
+                            <select asp-for="BrandId" asp-items="ViewBag.Brands" class="form-select"></select>
+                            <button type="button" class="btn btn-outline-secondary" onclick="quickAdd('Brand')" title="Thêm nhanh"><i class="bi bi-plus-lg"></i></button>
+                        </div>
+                        <span asp-validation-for="BrandId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="CategoryId" class="form-label fw-bold small text-muted"></label>
+                        <div class="input-group">
+                            <select asp-for="CategoryId" asp-items="ViewBag.Categories" class="form-select"></select>
+                            <button type="button" class="btn btn-outline-secondary" onclick="quickAdd('Category')" title="Thêm nhanh"><i class="bi bi-plus-lg"></i></button>
+                        </div>
+                        <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                    </div>
+
+                    <hr class="border-secondary opacity-10 my-3">
+
+                    <div class="mb-3">
+                        <label asp-for="GenreId" class="form-label fw-bold small text-muted"></label>
+                        <div class="input-group">
+                            <select asp-for="GenreId" asp-items="ViewBag.Genres" class="form-select" id="GenreSelect"></select>
+                            <button type="button" class="btn btn-outline-secondary" onclick="quickAdd('Genre')" title="Thêm nhanh"><i class="bi bi-plus-lg"></i></button>
+                        </div>
+                        <span asp-validation-for="GenreId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-0">
+                        <label asp-for="StyleId" class="form-label fw-bold small text-muted"></label>
+                        <div class="input-group">
+                            <select asp-for="StyleId" asp-items="ViewBag.Styles" class="form-select" id="StyleSelect">
+                                <option value="">-- Chọn Phong cách --</option>
+                            </select>
+                            <button type="button" class="btn btn-outline-secondary" onclick="quickAddStyle()" title="Thêm style vào thể loại này"><i class="bi bi-plus-lg"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-card p-4">
+                    <h5 class="fw-bold mb-3 border-bottom pb-2">Trạng thái & Thông tin khác</h5>
+
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" asp-for="IsPublished">
+                        <label class="form-check-label" asp-for="IsPublished"></label>
+                    </div>
+
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" asp-for="IsUsed">
+                        <label class="form-check-label" asp-for="IsUsed"></label>
+                    </div>
+
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" asp-for="IsPreOrder" id="preOrderCheck">
+                        <label class="form-check-label" asp-for="IsPreOrder"></label>
+                    </div>
+
+                    <div class="mb-3 collapse @(Model.IsPreOrder ? "show" : "")" id="preOrderDateBox">
+                        <label asp-for="ReleaseDate" class="form-label small fw-bold"></label>
+                        <input asp-for="ReleaseDate" class="form-control form-control-sm" type="date" />
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <label asp-for="Country" class="form-label small fw-bold text-muted"></label>
+                            <input asp-for="Country" class="form-control form-control-sm" />
+                        </div>
+                        <div class="col-6">
+                            <label asp-for="ReleaseYear" class="form-label small fw-bold text-muted"></label>
+                            <input asp-for="ReleaseYear" class="form-control form-control-sm" />
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Condition" class="form-label small fw-bold text-muted"></label>
+                            <select asp-for="Condition" asp-items="ViewBag.Conditions" class="form-select form-select-sm">
+                                <option value="">-- Chọn tình trạng --</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="card-body bg-light">
+            <div class="row g-4">
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

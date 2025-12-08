@@ -78,4 +78,19 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    @if (ViewData["BannedAccount"] != null && (bool)ViewData["BannedAccount"] == true)
+    {
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Tài khoản bị khóa',
+                    text: 'Tài khoản của bạn đã bị vô hiệu hóa. Vui lòng liên hệ Admin để được hỗ trợ.',
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'Đã hiểu'
+                });
+            });
+        </script>
+    }   
 }

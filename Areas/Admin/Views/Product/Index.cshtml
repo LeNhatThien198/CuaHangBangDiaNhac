@@ -1,0 +1,236 @@
+﻿@model IEnumerable<ProductListVM>
+
+@{
+    ViewData["Title"] = "Quản lý Sản phẩm";
+    var pagination = ViewBag.Pagination as Pagination;
+    string search = ViewBag.Search as string;
+    string currentSort = ViewBag.SortOrder as string;
+}
+
+<div class="page-header">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <span class="text-muted fw-bold"><i class="bi bi-disc me-1"></i>Sản phẩm</span>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">Danh sách sản phẩm</li>
+        </ol>
+    </nav>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow-sm border-0 table-card">
+    <div class="card-header bg-white py-3">
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+
+            <h6 class="mb-0 fw-bold d-flex align-items-center">
+                <i class="bi bi-music-note-list me-2"></i>Danh sách sản phẩm
+            </h6>
+
+            <form asp-action="Index" method="get" class="flex-grow-1 d-flex gap-2">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" name="search" value="@search"
+                           class="form-control border-start-0 bg-light"
+                           placeholder="Tìm tên sản phẩm, nghệ sĩ..." />
+                    <button type="submit" class="btn btn-dark">Tìm kiếm</button>
+                </div>
+
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-filter"></i> Sắp xếp
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                        <li><h6 class="dropdown-header text-uppercase small fw-bold">Thời gian</h6></li>
+                        <li><a class="dropdown-item @(currentSort == "id_desc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="id_desc" asp-route-search="@search">Mới nhất</a></li>
+                        <li><a class="dropdown-item @(currentSort == "id_asc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="id_asc" asp-route-search="@search">Cũ nhất</a></li>
+
+                        <li><hr class="dropdown-divider"></li>
+
+                        <li><h6 class="dropdown-header text-uppercase small fw-bold">Theo Tên</h6></li>
+                        <li><a class="dropdown-item @(currentSort == "name_asc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="name_asc" asp-route-search="@search"><i class="bi bi-sort-alpha-down me-2"></i>Tên (A-Z)</a></li>
+                        <li><a class="dropdown-item @(currentSort == "name_desc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="name_desc" asp-route-search="@search"><i class="bi bi-sort-alpha-down-alt me-2"></i>Tên (Z-A)</a></li>
+
+                        <li><hr class="dropdown-divider"></li>
+
+                        <li><h6 class="dropdown-header text-uppercase small fw-bold">Theo Giá</h6></li>
+                        <li><a class="dropdown-item @(currentSort == "price_asc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="price_asc" asp-route-search="@search"><i class="bi bi-sort-numeric-down me-2"></i>Giá Tăng dần</a></li>
+                        <li><a class="dropdown-item @(currentSort == "price_desc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="price_desc" asp-route-search="@search"><i class="bi bi-sort-numeric-down-alt me-2"></i>Giá Giảm dần</a></li>
+                    </ul>
+                </div>
+            </form>
+
+            <a asp-action="Create" class="btn btn-primary fw-bold px-4">
+                <i class="bi bi-plus-lg me-1"></i> Thêm sản phẩm
+            </a>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light text-uppercase small text-muted">
+                <tr>
+                    <th style="width: 50px;" class="text-center">ID</th>
+
+                    <th style="width: 70px;" class="text-center">Ảnh</th>
+
+                    <th style="min-width: 300px;">Sản phẩm / Nghệ sĩ</th>
+
+                    <th style="width: 220px;">Thông tin đĩa</th>
+
+                    <th style="width: 140px;">Giá bán</th>
+
+                    <th style="width: 80px;" class="text-center">Kho</th>
+
+                    <th style="width: 120px;" class="text-center">Trạng thái</th>
+
+                    <th class="text-end" style="width: 100px;">thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="text-center text-muted small">#@item.Id</td>
+
+                            <td class="text-center">
+                                @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                {
+                                    <img src="@item.ImageUrl" class="rounded border shadow-sm" style="width: 50px; height: 50px; object-fit: cover;" />
+                                }
+                                else
+                                {
+                                    <div class="bg-light rounded border d-flex align-items-center justify-content-center text-muted mx-auto" style="width: 50px; height: 50px;">
+                                        <i class="bi bi-image"></i>
+                                    </div>
+                                }
+                            </td>
+
+                            <td>
+                                <div class="fw-bold text-dark fs-6 text-break">@item.Name</div>
+                                <div class="text-muted small mt-1">
+                                    <i class="bi bi-mic-fill me-1"></i><span class="fw-semibold">@item.ArtistName</span>
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="mb-1">
+                                    <span class="badge bg-dark text-white border border-dark rounded-1">@item.CategoryName</span>
+                                </div>
+                                <div class="small text-dark text-truncate" style="max-width: 200px;" title="@item.BrandName">
+                                    <i class="bi bi-building me-1 text-muted"></i>@item.BrandName
+                                </div>
+                                <div class="small text-muted text-truncate" style="max-width: 200px;">
+                                    <i class="bi bi-music-note-beamed me-1"></i>@item.GenreName / @item.StyleName
+                                </div>
+                            </td>
+
+                            <td>
+                                @if (item.PromotionPrice.HasValue && item.PromotionPrice < item.Price)
+                                {
+                                    <div class="fw-bold text-danger">@item.PromotionPrice.Value.ToVnd()</div>
+                                    <div class="small text-muted text-decoration-line-through">@item.Price.ToVnd()</div>
+                                }
+                                else
+                                {
+                                    <div class="fw-bold text-primary">@item.Price.ToVnd()</div>
+                                }
+                                <div class="small text-muted fst-italic" style="font-size: 0.75rem;">   Vốn: @item.Cost.ToVnd()</div>
+                            </td>
+
+                            <td class="text-center">
+                                @if (item.Quantity > 0)
+                                {
+                                    <span class="fw-bold text-dark bg-light px-2 py-1 rounded border">@item.Quantity</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Hết</span>
+                                }
+                            </td>
+
+                            <td class="text-center">
+                                <div class="d-flex flex-column gap-1">
+                                    @if (item.IsPublished)
+                                    {
+                                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25">Hiển thị</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25">Đã ẩn</span>
+                                    }
+
+                                    @if (item.IsPreOrder)
+                                    {
+                                        <span class="badge bg-warning text-dark border border-warning">Pre-order</span>
+                                    }
+                                    @if (item.IsUsed)
+                                    {
+                                        <span class="badge bg-dark text-light border border-dark">Cũ</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success text-light border border-success">Mới</span>
+                                    }
+                                </div>
+                            </td>
+
+                            <td class="text-end">
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary border-0 me-1" title="Sửa">
+                                    <i class="bi bi-pencil-square fs-6"></i>
+                                </a>
+                                <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline">
+                                    <button type="button" class="btn btn-sm btn-outline-danger border-0" onclick="confirmDelete(this)" title="Xóa">
+                                        <i class="bi bi-trash fs-6"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            <div class="mb-2"><i class="bi bi-inbox fs-1"></i></div>
+                            <span class="fw-bold">Không tìm thấy sản phẩm nào</span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (pagination != null && pagination.TotalPages > 1)
+    {
+        <div class="card-footer bg-white py-3 border-top-0">
+            <nav>
+                <ul class="pagination justify-content-center mb-0 pagination-sm">
+                    <li class="page-item @(pagination.HasPreviousPage ? "" : "disabled")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@(pagination.PageNumber - 1)" asp-route-search="@search" asp-route-sortOrder="@currentSort">Trước</a>
+                    </li>
+                    @for (var i = 1; i <= pagination.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == pagination.PageNumber ? "active" : "")">
+                            <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-search="@search" asp-route-sortOrder="@currentSort">@i</a>
+                        </li>
+                    }
+                    <li class="page-item @(pagination.HasNextPage ? "" : "disabled")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@(pagination.PageNumber + 1)" asp-route-search="@search" asp-route-sortOrder="@currentSort">Sau</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }
+</div>

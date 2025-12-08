@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CuaHangBangDiaNhac.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251128091829_InitialCreate")]
+    [Migration("20251208095803_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -305,6 +305,10 @@ namespace CuaHangBangDiaNhac.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("PromotionPrice")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 

@@ -1,0 +1,286 @@
+﻿/* --- COMPONENT: CARDS --- */
+.card {
+    border: none;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+    border-radius: 8px;
+}
+
+.form-card {
+    background-color: #fff;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.sticky-wrapper {
+    position: sticky;
+    top: 90px; 
+    z-index: 950;
+}
+.table-card {
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+@media (max-width: 768px) {
+    .form-card {
+        position: static;
+        margin-bottom: 20px;
+    }
+}
+
+.table-responsive .sticky-top {
+    z-index: 900 !important;
+}
+
+/* --- COMPONENT: MASTER DATA TABS --- */
+.master-tabs {
+    border-bottom: 2px solid #1e1e1e;
+}
+
+    .master-tabs .nav-link {
+        color: #000 !important;
+        font-weight: 700;
+        border: none;
+        border-radius: 8px 8px 0 0;
+        padding: 12px 20px;
+        transition: all 0.2s ease;
+        margin-right: 2px;
+        opacity: 0.6;
+    }
+
+        .master-tabs .nav-link:hover {
+            background-color: #e9ecef;
+            color: #000 !important;
+            opacity: 1;
+        }
+
+        .master-tabs .nav-link.active {
+            background-color: #1e1e1e !important;
+            color: #fff !important;
+            border: none;
+            opacity: 1;
+        }
+
+/* --- COMPONENT: TOOLBAR & UTILS --- */
+.toolbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.toolbar-title {
+    white-space: nowrap;
+    margin-right: 15px;
+}
+
+.toolbar-actions {
+    display: flex;
+    gap: 10px;
+    flex-grow: 1;
+    justify-content: flex-end;
+    max-width: 600px;
+}
+
+.search-input-group {
+    min-width: 200px;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.text-truncate-custom {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+}
+
+/* --- COMPONENT: BREADCRUMB --- */
+.page-header {
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.breadcrumb {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    font-size: 0.9rem;
+}
+
+.breadcrumb-item {
+    display: flex;
+    align-items: center;
+}
+
+    .breadcrumb-item a {
+        color: #6c757d;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+
+        .breadcrumb-item a:hover {
+            color: #1e1e1e;
+        }
+
+    .breadcrumb-item.active {
+        color: #1e1e1e;
+        font-weight: 700;
+    }
+
+    .breadcrumb-item + .breadcrumb-item::before {
+        content: "›";
+        font-size: 1.5rem;
+        line-height: 0;
+        color: #adb5bd;
+        padding: 0 8px;
+        position: relative;
+        top: -3px;
+    }
+
+.btn-icon {
+    width: 24px; 
+    height: 24px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.btn-disabled-flat {
+    pointer-events: none; 
+    box-shadow: none !important;
+}
+
+    .btn-disabled-flat:hover {
+        background-color: inherit !important;
+    }
+.pagination .page-link {
+    color: #212529; /* Màu chữ đen (Dark) */
+    border: 1px solid #dee2e6;
+    background-color: #fff;
+}
+
+    /* 2. Hiệu ứng khi di chuột (Hover) */
+    .pagination .page-link:hover {
+        color: #000;
+        background-color: #e9ecef; /* Xám nhạt */
+        border-color: #dee2e6;
+    }
+
+/* 3. Nút đang chọn (Active) - NỀN ĐEN, CHỮ TRẮNG */
+.pagination .page-item.active .page-link {
+    z-index: 3;
+    color: #fff !important; /* Chữ trắng */
+    background-color: #212529 !important; /* Nền đen (bg-dark) */
+    border-color: #212529 !important; /* Viền đen */
+}
+
+/* 4. Nút bị vô hiệu hóa (Disabled) - Ví dụ nút Trước/Sau khi hết trang */
+.pagination .page-item.disabled .page-link {
+    color: #6c757d;
+    background-color: #fff;
+    border-color: #dee2e6;
+}
+
+/* 5. Xóa viền xanh (Focus outline) khi bấm vào */
+.pagination .page-link:focus {
+    box-shadow: 0 0 0 0.25rem rgba(33, 37, 41, 0.25); /* Shadow màu đen nhạt thay vì xanh */
+}
+
+.upload-box {
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+    .upload-box:hover {
+        border-color: #adb5bd;
+        background-color: #e9ecef;
+    }
+
+    .upload-box img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+/* Khung chứa ảnh bìa preview */
+.cover-preview-container {
+    min-height: 200px; /* Chiều cao tối thiểu để hiện placeholder */
+    height: auto; /* Tự giãn theo ảnh thật */
+    overflow: hidden;
+    background-color: #f8f9fa;
+    position: relative;
+    padding: 10px; /* Thêm padding cho thoáng */
+    display: flex; /* Để căn giữa placeholder */
+    align-items: center;
+    justify-content: center;
+}
+
+/* Ảnh preview (SỬA: Để ảnh tự nhiên, không ép size) */
+.cover-preview-img {
+    width: 100%; /* Rộng full khung */
+    height: auto; /* Cao tự động theo tỉ lệ */
+    display: block;
+    border-radius: 4px;
+}
+
+/* Placeholder (Giữ nguyên) */
+.cover-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #6c757d;
+    width: 100%; /* Đảm bảo chiếm hết khung khi không có ảnh */
+    min-height: 180px;
+}
+
+/* Khung chứa danh sách ảnh gallery */
+.gallery-preview-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+    min-height: 60px; /* Chiều cao tối thiểu để không bị xẹp */
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    border: 1px dashed #dee2e6; /* Viền nét đứt gợi ý vùng thả ảnh */
+}
+
+/* Từng item ảnh trong gallery */
+.gallery-item {
+    width: 70px;
+    height: 70px;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid #dee2e6;
+    background-color: #fff;
+    position: relative;
+}
+
+    .gallery-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }

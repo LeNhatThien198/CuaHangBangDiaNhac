@@ -1,0 +1,243 @@
+﻿@model GenreManagerVM
+@{
+    ViewData["Title"] = "Quản lý Thể loại & Phong cách";
+}
+
+<div class="page-header">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <span class="text-muted fw-bold"><i class="bi bi-disc me-1"></i>Sản phẩm</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">Thể loại & Phong cách</li>
+        </ol>
+    </nav>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-white border-bottom py-3">
+        <h6 class="mb-0 fw-bold"><i class="bi bi-music-note-list me-2"></i>Thể loại & Phong cách</h6>
+    </div>
+
+    <div class="card-body bg-light">
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="sticky-wrapper">
+
+                    <div class="form-card p-4 mb-3">
+                        <h5 class="fw-bold mb-3"><i class="bi bi-plus-circle me-2"></i>Thêm thể loại</h5>
+                        <form asp-action="CreateGenre" method="post">
+                            <div class="mb-3">
+                                <label asp-for="NewGenre.Name" class="form-label small text-muted fw-bold"></label>
+                                <input asp-for="NewGenre.Name" class="form-control" placeholder="Ví dụ: Rock, Pop..." />
+                                <span asp-validation-for="NewGenre.Name" class="text-danger small"></span>
+                            </div>
+                            <button type="submit" class="btn btn-dark w-100 fw-bold py-2">Lưu thể loại</button>
+                        </form>
+                    </div>
+
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-info bg-opacity-10 border-info border-opacity-25 py-2">
+                            <h6 class="mb-0 fw-bold text-info text-opacity-75 small text-uppercase">
+                                <i class="bi bi-info-circle-fill me-2"></i>Hướng dẫn thao tác
+                            </h6>
+                        </div>
+                        <div class="card-body bg-white p-3">
+                            <ul class="list-unstyled small mb-0 text-secondary">
+                                <li class="mb-3 d-flex align-items-start">
+                                    <button class="btn btn-dark btn-sm border me-1 btn-disabled-flat btn-icon">
+                                        <i class="bi bi-plus-lg"></i>
+                                    </button>
+                                    <div>
+                                        <strong class="text-dark">Thêm phong cách:</strong><br />
+                                        Bấm nút dấu cộng ở cột <em>Thao tác</em> của thể loại tương ứng.
+                                    </div>
+                                </li>
+                                <li class="mb-3 d-flex">
+                                    <span class="me-2"><i class="bi bi-pencil-square text-dark"></i></span>
+                                    <div>
+                                        <strong class="text-dark">Sửa / Xóa phong cách:</strong><br />
+                                        Trong cột <em>Phong cách</em>, bấm vào tên phong cách để <strong>Sửa</strong> hoặc bấm dấu <span class="text-danger fw-bold">&times;</span> để <strong>Xóa</strong>.
+                                    </div>
+                                </li>
+                                <li class="d-flex">
+                                    <span class="me-2"><i class="bi bi-pencil-square text-primary"></i></span>
+                                    <div>
+                                        <strong class="text-dark">Sửa / Xóa thể loại:</strong><br />
+                                        Dùng các nút Sửa <i class="bi bi-pencil-square text-primary"></i> và Xóa <i class="bi bi-trash text-danger"></i> ở cột bên phải cùng.
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="table-card bg-white">
+
+                    <div class="p-3 border-bottom bg-light toolbar-container">
+                        <h6 class="mb-0 fw-bold toolbar-title">Danh sách hiện có</h6>
+
+                        <div class="toolbar-actions">
+                            <div class="input-group input-group-sm search-input-group flex-grow-1">
+                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                                <input type="text" id="searchGenre" class="form-control border-start-0" placeholder="Tìm Genre hoặc Style..." onkeyup="searchTable('searchGenre', 'genreTable')">
+                            </div>
+
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-filter"></i> Sắp xếp
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                                    <li><h6 class="dropdown-header text-uppercase small fw-bold">Theo Tên</h6></li>
+                                    <li><a class="dropdown-item cursor-pointer" onclick="applySort('genreTable', 1, 'str', 'asc', this)"><i class="bi bi-sort-alpha-down me-2"></i>Tên (A-Z)</a></li>
+                                    <li><a class="dropdown-item cursor-pointer" onclick="applySort('genreTable', 1, 'str', 'desc', this)"><i class="bi bi-sort-alpha-down-alt me-2"></i>Tên (Z-A)</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><h6 class="dropdown-header text-uppercase small fw-bold">Theo ID</h6></li>
+                                    <li><a class="dropdown-item cursor-pointer" onclick="applySort('genreTable', 0, 'num', 'asc', this)"><i class="bi bi-sort-numeric-down me-2"></i>ID Tăng dần</a></li>
+                                    <li><a class="dropdown-item cursor-pointer" onclick="applySort('genreTable', 0, 'num', 'desc', this)"><i class="bi bi-sort-numeric-down-alt me-2"></i>ID Giảm dần</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
+                        <table class="table table-hover align-middle mb-0" id="genreTable">
+                            <thead class="table-light sticky-top">
+                                <tr>
+                                    <th class="text-center" style="width: 60px;">ID</th>
+                                    <th style="width: 150px;">Thể loại</th>
+                                    <th>Phong cách / Thể loại con</th>
+                                    <th class="text-center" style="width: 140px;">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var genre in Model.Genres)
+                                {
+                                    <tr>
+                                        <td class="text-center text-muted small">#@genre.Id</td>
+                                        <td class="fw-bold text-dark fs-6">@genre.Name</td>
+
+                                        <td>
+                                            @if (genre.Styles.Any())
+                                            {
+                                                <div class="d-flex flex-wrap gap-2">
+                                                    @foreach (var style in genre.Styles)
+                                                    {
+                                                        <div class="btn-group btn-group-sm" role="group">
+                                                            <button type="button" class="btn btn-outline-secondary border-secondary-subtle text-dark"
+                                                                    style="font-size: 0.8rem;"
+                                                                    onclick="openEditModal(this)"
+                                                                    data-url="@Url.Action("EditStyle", new { id = style.Id })">
+                                                                @style.Name
+                                                            </button>
+                                                            <form asp-action="DeleteStyle" asp-route-id="@style.Id" method="post">
+                                                                <button type="button" class="btn btn-outline-secondary border-secondary-subtle text-danger"
+                                                                        style="font-size: 0.8rem;"
+                                                                        onclick="confirmDelete(this)">
+                                                                    &times;
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted small fst-italic">Chưa có style</span>
+                                            }
+                                        </td>
+
+                                        <td class="text-center">
+                                            <button class="btn btn-sm btn-dark border me-1"
+                                                    onclick="openAddStyleModal('@genre.Id', '@genre.Name')">
+                                                <i class="bi bi-plus-lg text-light"></i>
+                                            </button>
+
+                                            <button class="btn btn-outline-primary border-0 me-1"
+                                                    onclick="openEditModal(this)"
+                                                    data-url="@Url.Action("EditGenre", new { id = genre.Id })">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </button>
+
+                                            <form asp-action="DeleteGenre" asp-route-id="@genre.Id" method="post" class="d-inline">
+                                                <button type="button" class="btn btn-outline-danger border-0" onclick="confirmDelete(this)">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addStyleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title fw-bold">Thêm phong cách mới</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="CreateStyle" method="post">
+                <div class="modal-body">
+                    <input type="hidden" asp-for="NewStyle.GenreId" id="modalGenreId" />
+
+                    <div class="alert alert-light border mb-3">
+                        <small class="text-muted fw-bold">THUỘC THỂ LOẠI:</small><br />
+                        <span id="modalGenreName" class="fw-bold text-primary fs-5"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="NewStyle.Name" class="form-label small text-muted fw-bold"></label>
+                        <input asp-for="NewStyle.Name" class="form-control" placeholder="Nhập tên phong cách..." required />
+                        <span asp-validation-for="NewStyle.Name" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary fw-bold">Thêm Style</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title fw-bold">Cập nhật thông tin</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div id="modalContainer"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        function openAddStyleModal(genreId, genreName) {
+            document.getElementById('modalGenreId').value = genreId;
+            document.getElementById('modalGenreName').textContent = genreName;
+            var myModal = new bootstrap.Modal(document.getElementById('addStyleModal'));
+            myModal.show();
+        }
+    </script>
+}

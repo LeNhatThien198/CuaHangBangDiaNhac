@@ -23,13 +23,13 @@ public class RegisterViewModel
 {
     [Required(ErrorMessage = "Vui lòng nhập tên đăng nhập")]
     [Display(Name = "Tên đăng nhập")]
-    [Remote(action: "VerifyUsername", controller: "Account")]
+    [Remote("VerifyUsername", "Account")]
     public string Username { get; set; }
 
     [Required(ErrorMessage = "Vui lòng nhập địa chỉ Email")]
     [EmailAddress]
     [Display(Name = "Email")]
-    [Remote(action: "VerifyEmail", controller: "Account")]
+    [Remote("VerifyEmail", "Account")]
     public string Email { get; set; }
 
     [Required(ErrorMessage = "Vui lòng nhập họ và tên")]

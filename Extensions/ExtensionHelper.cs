@@ -10,7 +10,6 @@ namespace CuaHangBangDiaNhac.Extensions
 
             var culture = CultureInfo.GetCultureInfo("vi-VN");
 
-            // + " đ" : Thêm chữ đ vào cuối (bạn có thể sửa thành " VND" nếu thích)
             return price.ToString("#,##0", culture.NumberFormat) + " VNĐ";
         }
     }

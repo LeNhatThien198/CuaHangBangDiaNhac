@@ -1,0 +1,16 @@
+﻿@model GenreInputVM
+
+<form asp-action="EditGenre" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div class="modal-body">
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label fw-bold"></label>
+            <input asp-for="Name" class="form-control" required />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+    </div>
+</form>
