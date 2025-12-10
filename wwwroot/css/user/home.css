@@ -1,0 +1,144 @@
+/* HOME PAGE STYLES */
+
+/* 1. Hero Carousel */
+.hero-section {
+    position: relative;
+    margin-top: 76px;
+    margin-bottom: 3rem;
+    overflow: hidden;
+}
+
+.hero-carousel {
+    max-height: 500px;
+    background-color: #000;
+}
+
+.carousel-item-wrapper {
+    position: relative;
+    width: 100%;
+    height: 500px;
+    overflow: hidden;
+}
+
+.carousel-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    opacity: 0.9;
+    transition: transform 1.5s ease;
+}
+
+.hero-carousel:hover .carousel-img {
+    transform: scale(1.05);
+}
+
+.carousel-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 40%, transparent 100%);
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: 4rem;
+}
+
+.carousel-caption-content {
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: center;
+    color: #fff;
+    padding: 0 1rem;
+}
+
+.carousel-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 0.5rem;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+}
+
+.carousel-subtitle {
+    font-size: 1.2rem;
+    font-weight: 400;
+    opacity: 0.9;
+    margin-bottom: 2rem;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.7);
+}
+
+/* 2. Section Headers */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 2.5rem;
+    border-bottom: none;
+    /* Remove line, use label instead */
+    position: relative;
+}
+
+
+
+.section-title {
+    font-size: 2rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin: 0;
+    color: #fff;
+    /* White Text */
+    background-color: #000;
+    /* Black Background */
+    padding: 10px 30px;
+    position: relative;
+    z-index: 1;
+    /* Sit on top of the line */
+    display: inline-block;
+    /* Stylish skew effect */
+    transform: skewX(-15deg);
+    box-shadow: 5px 5px 0px rgba(0, 0, 0, 0.2);
+}
+
+.section-title span {
+    display: block;
+    transform: skewX(15deg);
+    /* Un-skew text */
+}
+
+.section-link {
+    font-size: 1rem;
+    color: #6c757d;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s;
+}
+
+.section-link:hover {
+    color: #000;
+}
+
+/* Removed product card styles - moved to components.css */
+
+/* Fixed Background for Home Page */
+.home-bg-fixed {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    /* Fix: Sit on top of body bg */
+    background-image: url('https://images.unsplash.com/photo-1459749411177-d4a37985ca81?q=80&w=2000&auto=format&fit=crop');
+    /* Light aesthetic */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: brightness(0.9);
+    /* Slightly dimmed for card contrast, but overall Bright */
+}
+
+/* Removed remaining card styles - moved to components.css */

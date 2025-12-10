@@ -8,7 +8,12 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
-                <a asp-action="Index"><i class="bi bi-people me-1"></i>Tài khoản</a>
+                <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="text-decoration-none">
+                    <i class="bi bi-house-door-fill me-1"></i>Quản trị
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a asp-action="Index" class="text-decoration-none">Tài khoản</a>
             </li>
             <li class="breadcrumb-item active" aria-current="page">Cập nhật</li>
         </ol>

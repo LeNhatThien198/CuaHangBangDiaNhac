@@ -1,0 +1,546 @@
+/* PRODUCT PAGE STYLES */
+
+/* Filter Sidebar Container */
+.filter-sidebar {
+    background-color: #fff;
+    border: 1px solid #000;
+    /* Black Border to match Cards */
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /* Match Card Shadow */
+    margin-bottom: 2rem;
+}
+
+.filter-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.filter-link {
+    text-decoration: none;
+    color: #000 !important;
+    /* Dark color */
+    font-size: 0.9rem;
+    display: block;
+    padding: 5px 0;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+}
+
+.filter-link:hover {
+    color: #000 !important;
+    padding-left: 8px;
+    border-left-color: #000 !important;
+    /* Dark border */
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.filter-link.active {
+    color: #000 !important;
+    /* Dark Text */
+    font-weight: 800;
+    padding-left: 8px;
+    border-left-color: #000 !important;
+    /* Dark Border */
+    background-color: #e9ecef;
+}
+
+.sub-filter-list {
+    top: 90px;
+}
+
+.main-image-container {
+    overflow: hidden;
+    border: 1px solid #dee2e6;
+    background: #f8f9fa;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* Auto height to fit image */
+    height: auto;
+    min-height: 300px;
+    width: fit-content;
+    margin: 0 auto;
+    max-width: 100%;
+
+    position: relative;
+    cursor: zoom-in;
+    border-radius: 8px;
+}
+
+.hover-underline:hover {
+    text-decoration: underline !important;
+    color: #212529 !important;
+}
+
+/* Make Artist Name pop a bit more */
+.artist-link {
+    transition: color 0.2s;
+}
+
+.detail-main-img {
+    max-height: 500px;
+    /* Constrain max height */
+    max-width: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.thumb-strip {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+}
+
+.thumb-img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border: 2px solid transparent;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: all 0.2s;
+}
+
+.thumb-img:hover,
+.thumb-img.active {
+    border-color: #212529;
+    opacity: 1;
+}
+
+/* --- LIGHTBOX OVERLAY (DISCOGS STYLE) --- */
+.image-viewer-overlay {
+    background-color: rgba(0, 0, 0, 0.85);
+    /* Updated opacity */
+    z-index: 99999;
+    display: none;
+    /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.viewer-content-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    padding: 2rem;
+}
+
+.viewer-img {
+    max-height: 75vh;
+    max-width: 90vw;
+    object-fit: contain;
+    margin-bottom: 1rem;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.viewer-caption {
+    color: #fff;
+    margin-top: 1rem;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.viewer-close-btn {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    font-size: 3rem;
+    color: #fff;
+    cursor: pointer;
+    opacity: 0.7;
+    z-index: 100000;
+}
+
+.viewer-close-btn:hover {
+    opacity: 1;
+}
+
+/* Thumbnails in Overlay */
+.viewer-thumbs-container {
+    margin-top: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px 20px;
+    border-radius: 30px;
+    display: flex;
+    gap: 10px;
+}
+
+.viewer-thumb {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border: 2px solid transparent;
+    cursor: pointer;
+    opacity: 0.5;
+}
+
+.viewer-thumb.active {
+    border-color: #fff;
+    opacity: 1;
+}
+
+.filter-group {
+    margin-bottom: 2rem;
+}
+
+.filter-title {
+    font-size: 0.95rem;
+    font-weight: 800;
+    /* Bolder */
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #000 !important;
+    /* Black underline for sharpness */
+    padding-bottom: 0.5rem;
+    color: #000 !important;
+}
+
+.filter-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.filter-link {
+    text-decoration: none;
+    color: #495057;
+    font-size: 0.9rem;
+    display: block;
+    padding: 4px 0;
+    transition: all 0.2s;
+    border-left: 2px solid transparent;
+}
+
+.filter-link:hover {
+    color: #000;
+    padding-left: 5px;
+    border-left-color: #dee2e6;
+}
+
+.filter-link.active {
+    color: #0d6efd;
+    font-weight: 700;
+    padding-left: 8px;
+    border-left-color: #0d6efd;
+    /* Sharp marker */
+}
+
+.sub-filter-list {
+    list-style: none;
+    padding-left: 0.8rem;
+    margin-top: 0.2rem;
+    border-left: 2px solid #000 !important;
+}
+
+.scrollable-filter-list {
+    max-height: 250px;
+    overflow-y: auto;
+    border: 2px solid #000 !important;
+    padding: 0.5rem;
+    border-radius: 4px;
+}
+
+/* --- GRID VIEW (DEFAULT) --- */
+/* Most styles inherited from components.css (Global) */
+
+/* LINK WRAPPER RESET - Critical to prevent Blue text */
+a.d-contents-wrapper {
+    color: inherit !important;
+    text-decoration: none !important;
+    display: flex;
+    /* Changed from contents to flex to support flex-grow */
+    flex-direction: column;
+    height: 100%;
+}
+
+/* Ensure actions don't break grid card */
+/* NOW Styles apply to Footer Group */
+.card-footer-group {
+    background: #fff;
+    border-top: 1px solid #f0f0f0;
+    margin-top: auto;
+    /* Ensures it sits at bottom */
+    display: flex;
+    flex-direction: column;
+}
+
+.card-footer-group .card-price {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    margin-top: 0.5rem;
+    /* Price padding to match body */
+}
+
+.card-actions {
+    /* Reset padding as it is now inside footer group */
+    background: transparent;
+    border-top: none;
+    margin-top: 0;
+    padding: 0.75rem;
+}
+
+
+/* OVERRIDE: Allow Title to wrap */
+.product-card .card-title {
+    display: block !important;
+    /* Override flex or box */
+    -webkit-line-clamp: unset !important;
+    /* Disable truncation */
+    overflow: visible !important;
+    text-overflow: clip !important;
+    height: auto !important;
+    min-height: 2.6rem;
+}
+
+/* New Badge Position Logic */
+.badges-container-body .badge {
+    font-size: 0.7rem;
+    font-weight: 500;
+}
+
+
+/* --- LIST VIEW (STRICT LAYOUT) --- */
+.product-list-view .col {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 0 0 100%;
+}
+
+.product-list-view .product-card {
+    flex-direction: row !important;
+    min-height: 160px;
+    height: auto !important;
+    display: flex;
+}
+
+/* In list view, logic wrapper */
+.product-list-view .d-contents-wrapper {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-grow: 1;
+    width: 100%;
+    margin: 0;
+    align-items: stretch;
+}
+
+.product-list-view .card-img-wrapper {
+    width: 160px;
+    min-width: 160px;
+    height: auto;
+    padding-top: 0;
+    border-bottom: none;
+    border-right: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    background: #f8f9fa;
+}
+
+.product-list-view .card-img-top {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    max-height: 160px;
+    object-fit: contain;
+    padding: 0.5rem;
+}
+
+/* Clean Card Body - No Grid needed for Price anymore */
+.product-list-view .card-body {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column !important;
+    /* Back to Column for Badges/Title */
+    align-items: flex-start;
+    justify-content: flex-start;
+    /* Top align */
+    padding: 1rem 1.5rem;
+    gap: 0.5rem;
+    padding-top: 1.5rem;
+}
+
+.product-list-view .badges-container-body {
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.product-list-view .card-info-main {
+    text-align: left;
+    width: 100%;
+}
+
+.product-list-view .card-title {
+    font-size: 1.25rem;
+    margin-bottom: 0.25rem;
+    color: #212529;
+    font-weight: 700;
+}
+
+.product-list-view .card-artist {
+    margin-bottom: 0;
+}
+
+/* Footer Group in List View -> Sidebar on right */
+.product-list-view .card-footer-group {
+    flex-direction: column;
+    justify-content: center;
+    width: 200px;
+    /* Increased to avoid overlapping */
+    min-width: 200px;
+    border-top: none !important;
+    border-left: 1px solid #000 !important;
+    /* Black Separator for List View */
+    background: #fff;
+    padding: 1rem !important;
+    margin-top: 0;
+}
+
+/* Price in List View Sidebar */
+.product-list-view .card-footer-group .card-price {
+    align-items: flex-end !important;
+    /* Right align price in sidebar */
+    text-align: right;
+    margin-bottom: 0.5rem;
+    /* Spacing between Price and Buttons */
+    padding: 0;
+    margin-top: 0;
+}
+
+.product-list-view .card-actions {
+    padding: 0 !important;
+    flex-direction: column;
+}
+
+/* Override Disabled Button Opacity */
+.btn:disabled,
+.btn.disabled {
+    opacity: 0.9 !important;
+    /* High opacity as requested */
+    color: #fff !important;
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+}
+
+/* Badges inherited from global components.css */
+
+/* Vinyl Grading Colors */
+.text-u-mint {
+    color: #198754 !important;
+}
+
+/* Green */
+.text-u-nm {
+    color: #20c997 !important;
+}
+
+/* Teal */
+.text-u-vg-plus {
+    color: #0d6efd !important;
+}
+
+/* Blue */
+.text-u-vg {
+    color: #ffc107 !important;
+    text-shadow: 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+/* Yellow */
+.text-u-good {
+    color: #fd7e14 !important;
+}
+
+/* Orange */
+.text-u-poor {
+    color: #dc3545 !important;
+}
+
+/* Red */
+
+.text-u-new {
+    color: #198754 !important;
+}
+
+/* Matches Mới badge */
+
+/* Global Artist Boldness */
+.artist-link,
+.card-artist {
+    font-weight: 700 !important;
+    color: #495057;
+    /* Darker grey for better visibility */
+}
+
+/* Distinct Aesthetic Colors for Specs */
+.spec-brand {
+    color: #6f42c1 !important;
+}
+
+/* Purple */
+.spec-genre {
+    color: #d63384 !important;
+}
+
+/* Pink */
+.spec-style {
+    color: #0d6efd !important;
+}
+
+/* Blue */
+.spec-year {
+    color: #fd7e14 !important;
+}
+
+/* Orange */
+.spec-country {
+    color: #0085a1 !important;
+}
+
+/* Teal/Cyan darker */
+
+/* Extra Bold Utility */
+.fw-extra-bold {
+    font-weight: 800 !important;
+}
+
+/* Remove Input Spinners */
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
+/* Tracklist Table */
+.tracklist-table th {
+    background-color: #f8f9fa;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+}
+
+.tracklist-table td {
+    vertical-align: middle;
+}

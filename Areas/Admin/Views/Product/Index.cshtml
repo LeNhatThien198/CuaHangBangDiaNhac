@@ -5,13 +5,34 @@
     var pagination = ViewBag.Pagination as Pagination;
     string search = ViewBag.Search as string;
     string currentSort = ViewBag.SortOrder as string;
+    var sortLabels = new Dictionary<string, string>
+    {
+        { "id_desc", "Mới nhất" },
+        { "id_asc", "Cũ nhất" },
+        { "price_asc", "Giá Tăng dần" },
+        { "price_desc", "Giá Giảm dần" },
+        { "name_asc", "Tên (A-Z)" },
+        { "name_desc", "Tên (Z-A)" },
+        { "status_asc", "Trạng thái (Đã ẩn)" },
+        { "status_desc", "Trạng thái (Hiển thị)" },
+        { "condition_asc", "Hàng (Mới)" },
+        { "condition_desc", "Hàng (2hand)" },
+        { "preorder_desc", "Pre-order" },
+        { "preorder_asc", "Có sẵn" }
+    };
+    var currentSortLabel = sortLabels.ContainsKey(currentSort ?? "id_desc") ? sortLabels[currentSort ?? "id_desc"] : "Mới nhất";
 }
 
 <div class="page-header">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
-                <span class="text-muted fw-bold"><i class="bi bi-disc me-1"></i>Sản phẩm</span>
+                <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="text-decoration-none">
+                    <i class="bi bi-house-door-fill me-1"></i>Quản trị
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <span class="text-muted fw-bold">Sản phẩm</span>
             </li>
             <li class="breadcrumb-item active" aria-current="page">Danh sách sản phẩm</li>
         </ol>
@@ -46,13 +67,13 @@
                 </div>
 
                 <div class="dropdown">
-                    <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-filter"></i> Sắp xếp
+                    <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2 fw-bold" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-filter"></i> @currentSortLabel
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end shadow border-0">
                         <li><h6 class="dropdown-header text-uppercase small fw-bold">Thời gian</h6></li>
-                        <li><a class="dropdown-item @(currentSort == "id_desc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="id_desc" asp-route-search="@search">Mới nhất</a></li>
-                        <li><a class="dropdown-item @(currentSort == "id_asc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="id_asc" asp-route-search="@search">Cũ nhất</a></li>
+                        <li><a class="dropdown-item @(currentSort == "id_desc" || currentSort == null ? "active" : "")" asp-action="Index" asp-route-sortOrder="id_desc" asp-route-search="@search"><i class="bi bi-sort-down me-2"></i>Mới nhất</a></li>
+                        <li><a class="dropdown-item @(currentSort == "id_asc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="id_asc" asp-route-search="@search"><i class="bi bi-sort-up me-2"></i>Cũ nhất</a></li>
 
                         <li><hr class="dropdown-divider"></li>
 
@@ -65,6 +86,22 @@
                         <li><h6 class="dropdown-header text-uppercase small fw-bold">Theo Giá</h6></li>
                         <li><a class="dropdown-item @(currentSort == "price_asc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="price_asc" asp-route-search="@search"><i class="bi bi-sort-numeric-down me-2"></i>Giá Tăng dần</a></li>
                         <li><a class="dropdown-item @(currentSort == "price_desc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="price_desc" asp-route-search="@search"><i class="bi bi-sort-numeric-down-alt me-2"></i>Giá Giảm dần</a></li>
+                        
+                        <li><hr class="dropdown-divider"></li>
+
+                        <li><h6 class="dropdown-header text-uppercase small fw-bold">Theo Trạng thái</h6></li>
+                        <li><a class="dropdown-item @(currentSort == "status_desc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="status_desc" asp-route-search="@search"><i class="bi bi-eye-fill me-2"></i>Hiển thị trước</a></li>
+                        <li><a class="dropdown-item @(currentSort == "status_asc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="status_asc" asp-route-search="@search"><i class="bi bi-eye-slash-fill me-2"></i>Đã ẩn trước</a></li>
+                        
+                         <li><hr class="dropdown-divider"></li>
+
+                        <li><h6 class="dropdown-header text-uppercase small fw-bold">Theo Loại hàng</h6></li>
+                        <li><a class="dropdown-item @(currentSort == "condition_asc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="condition_asc" asp-route-search="@search"><i class="bi bi-star-fill me-2"></i>Hàng Mới</a></li>
+                        <li><a class="dropdown-item @(currentSort == "condition_desc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="condition_desc" asp-route-search="@search"><i class="bi bi-recycle me-2"></i>Hàng 2hand</a></li>
+                        
+                        <li><h6 class="dropdown-header text-uppercase small fw-bold mt-2">Theo Pre-order</h6></li>
+                        <li><a class="dropdown-item @(currentSort == "preorder_desc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="preorder_desc" asp-route-search="@search"><i class="bi bi-clock-history me-2"></i>Pre-order (Đặt trước)</a></li>
+                        <li><a class="dropdown-item @(currentSort == "preorder_asc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="preorder_asc" asp-route-search="@search"><i class="bi bi-box-seam me-2"></i>Hàng có sẵn</a></li>
                     </ul>
                 </div>
             </form>

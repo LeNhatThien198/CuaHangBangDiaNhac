@@ -2,16 +2,97 @@
 
 @{
     ViewData["Title"] = "Quản lý tài khoản";
+    string search = ViewBag.Search as string;
+    string currentSort = ViewBag.SortOrder as string;
+    var sortLabels = new Dictionary<string, string>
+    {
+        { "name_asc", "Tên (A-Z)" },
+        { "name_desc", "Tên (Z-A)" },
+        { "email_asc", "Email (A-Z)" },
+        { "email_desc", "Email (Z-A)" },
+        { "username_asc", "Username (A-Z)" },
+        { "username_desc", "Username (Z-A)" },
+        { "role_asc", "Vai trò (A-Z)" },
+        { "role_desc", "Vai trò (Z-A)" },
+        { "status_asc", "Trạng thái (Hoạt động)" },
+        { "status_desc", "Trạng thái (Đã khóa)" }
+    };
+    var currentSortLabel = sortLabels.ContainsKey(currentSort ?? "name_asc") ? sortLabels[currentSort ?? "name_asc"] : "Tên (A-Z)";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="fw-bold mb-0"><i class="bi bi-people-fill me-2"></i>Danh sách tài khoản</h4>
-    <a asp-action="Create" class="btn btn-dark btn-sm">
-        <i class="bi bi-plus-lg me-1"></i> Thêm mới
-    </a>
+<div class="page-header">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="text-decoration-none">
+                    <i class="bi bi-house-door-fill me-1"></i>Quản trị
+                </a>
+            </li>   
+            <li class="breadcrumb-item active" aria-current="page">Tài khoản</li>
+        </ol>
+    </nav>
 </div>
 
-<div class="card shadow-sm">
+<div class="card shadow-sm border-0 table-card">
+    <div class="card-header bg-white py-3">
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+            <h6 class="mb-0 fw-bold d-flex align-items-center">
+                <i class="bi bi-people-fill me-2"></i>Danh sách tài khoản
+            </h6>
+
+            <form asp-action="Index" method="get" class="flex-grow-1 d-flex gap-2">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" name="search" value="@search"
+                           class="form-control border-start-0 bg-light"
+                           placeholder="Tìm tên, email, sđt..." />
+                    <button type="submit" class="btn btn-dark">Tìm kiếm</button>
+                </div>
+
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2 fw-bold" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-filter"></i> @currentSortLabel
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                        <li><h6 class="dropdown-header text-uppercase small fw-bold">Theo Tên</h6></li>
+                        <li><a class="dropdown-item @(currentSort == "name_asc" || currentSort == null ? "active" : "")" asp-action="Index" asp-route-sortOrder="name_asc" asp-route-search="@search"><i class="bi bi-sort-alpha-down me-2"></i>Tên (A-Z)</a></li>
+                        <li><a class="dropdown-item @(currentSort == "name_desc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="name_desc" asp-route-search="@search"><i class="bi bi-sort-alpha-down-alt me-2"></i>Tên (Z-A)</a></li>
+                        
+                        <li><hr class="dropdown-divider"></li>
+                        
+                        <li><h6 class="dropdown-header text-uppercase small fw-bold">Theo Username</h6></li>
+                         <li><a class="dropdown-item @(currentSort == "username_asc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="username_asc" asp-route-search="@search"><i class="bi bi-sort-alpha-down me-2"></i>Username (A-Z)</a></li>
+                        <li><a class="dropdown-item @(currentSort == "username_desc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="username_desc" asp-route-search="@search"><i class="bi bi-sort-alpha-down-alt me-2"></i>Username (Z-A)</a></li>
+
+                        <li><hr class="dropdown-divider"></li>
+
+                        <li><h6 class="dropdown-header text-uppercase small fw-bold">Theo Email</h6></li>
+                        <li><a class="dropdown-item @(currentSort == "email_asc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="email_asc" asp-route-search="@search"><i class="bi bi-envelope me-2"></i>Email (A-Z)</a></li>
+                        <li><a class="dropdown-item @(currentSort == "email_desc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="email_desc" asp-route-search="@search"><i class="bi bi-envelope-fill me-2"></i>Email (Z-A)</a></li>
+                        
+                        <li><hr class="dropdown-divider"></li>
+
+                        <li><h6 class="dropdown-header text-uppercase small fw-bold">Theo Vai trò</h6></li>
+                        <li><a class="dropdown-item @(currentSort == "role_asc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="role_asc" asp-route-search="@search"><i class="bi bi-person-badge me-2"></i>Vai trò (A-Z)</a></li>
+                        <li><a class="dropdown-item @(currentSort == "role_desc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="role_desc" asp-route-search="@search"><i class="bi bi-person-badge-fill me-2"></i>Vai trò (Z-A)</a></li>
+
+                        <li><hr class="dropdown-divider"></li>
+
+                        <li><h6 class="dropdown-header text-uppercase small fw-bold">Theo Trạng thái</h6></li>
+                        <li><a class="dropdown-item @(currentSort == "status_asc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="status_asc" asp-route-search="@search"><i class="bi bi-check-circle me-2"></i>Hoạt động trước</a></li>
+                        <li><a class="dropdown-item @(currentSort == "status_desc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="status_desc" asp-route-search="@search"><i class="bi bi-lock-fill me-2"></i>Đã khóa trước</a></li>
+                    </ul>
+                </div>
+            </form>
+
+            <a asp-action="Create" class="btn btn-dark fw-bold px-3">
+                <i class="bi bi-plus-lg me-1"></i> Thêm mới
+            </a>
+        </div>
+    </div>
+    
     <div class="card-body p-0">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">

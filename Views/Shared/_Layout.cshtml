@@ -10,7 +10,9 @@
     <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="~/lib/sweetalert2/sweetalert2.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/user/components.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/user/components.css?v=global_update_22" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/user/home.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/user/product.css?v=global_update_22" asp-append-version="true" />
 </head>
 
 @{
@@ -34,27 +36,48 @@
                     </button>
 
                     <div class="collapse navbar-collapse" id="navMain">
-                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                            <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Trang chủ</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index" asp-route-category="Vinyl">Vinyl</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index" asp-route-category="CD">CD</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index" asp-route-category="Cassette">Cassette</a></li>
+                        @{
+                            var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+                            var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+                            var currentCategory = Context.Request.Query["category"].ToString();
+                            
+                            string GetActiveClass(string controller, string action, string category = null)
+                            {
+                                if (string.IsNullOrEmpty(category))
+                                {
+                                    return (currentController == controller && currentAction == action && string.IsNullOrEmpty(currentCategory)) ? "active" : "";
+                                }
+                                return (currentController == controller && currentAction == action && currentCategory == category) ? "active" : "";
+                            }
+                        }
+
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0 fw-bold text-uppercase">
+                            <li class="nav-item">
+                                <a class="nav-link @GetActiveClass("Home", "Index")" asp-controller="Home" asp-action="Index">Trang chủ</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @GetActiveClass("Product", "Index")" asp-controller="Product" asp-action="Index">Sản phẩm</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @GetActiveClass("Product", "Index", "Cassette")" asp-controller="Product" asp-action="Index" asp-route-category="Cassette">Cassette</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @GetActiveClass("Product", "Index", "CD")" asp-controller="Product" asp-action="Index" asp-route-category="CD">CD</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @GetActiveClass("Product", "Index", "Vinyl")" asp-controller="Product" asp-action="Index" asp-route-category="Vinyl">Vinyl</a>
+                            </li>
+                            @if (User.IsInRole("Admin") || User.IsInRole("Staff"))
+                            {
+                                <li class="nav-item nav-item-admin">
+                                    <a class="nav-link text-warning" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Quản trị</a>
+                                </li>
+                            }
                         </ul>
 
-                        <form class="d-flex me-3" asp-controller="Product" asp-action="Search" method="get">
-                            <div class="input-group input-group-sm">
-                                <input class="form-control bg-dark text-white border-secondary" type="search" placeholder="Tìm kiếm..." name="query" style="width: 200px;">
-                                <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-search"></i></button>
-                            </div>
-                        </form>
 
-                        <ul class="navbar-nav align-items-center gap-3">
-                            <li class="nav-item">
-                                <a class="nav-link position-relative" asp-controller="Cart" asp-action="Index" title="Giỏ hàng">
-                                    <i class="bi bi-cart3 fs-5"></i>
-                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill badge-cart">0</span>
-                                </a>
-                            </li>
+
+                        <ul class="navbar-nav align-items-center gap-3 ms-auto">
                             <partial name="_LoginPartial" />
                         </ul>
                     </div>
@@ -117,6 +140,8 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/lib/sweetalert2/sweetalert2.all.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/user/product.js" asp-append-version="true"></script>
+    <script src="~/js/user/cart.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

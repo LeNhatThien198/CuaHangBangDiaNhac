@@ -49,6 +49,12 @@ namespace CuaHangBangDiaNhac.Areas.Admin.Controllers
                 case "price_asc": query = query.OrderBy(p => p.Price); break;
                 case "price_desc": query = query.OrderByDescending(p => p.Price); break;
                 case "id_asc": query = query.OrderBy(p => p.Id); break;
+                case "status_asc": query = query.OrderBy(p => p.IsPublished); break;
+                case "status_desc": query = query.OrderByDescending(p => p.IsPublished); break;
+                case "condition_asc": query = query.OrderBy(p => p.IsUsed); break;
+                case "condition_desc": query = query.OrderByDescending(p => p.IsUsed); break;
+                case "preorder_desc": query = query.OrderByDescending(p => p.IsPreOrder); break;
+                case "preorder_asc": query = query.OrderBy(p => p.IsPreOrder); break;
                 default: query = query.OrderByDescending(p => p.Id); break;
             }
 

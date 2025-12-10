@@ -1,8 +1,9 @@
-using CuaHangBangDiaNhac.Cli;               
-using CuaHangBangDiaNhac.Data;              
-using CuaHangBangDiaNhac.ServicesRegisters; 
+using CuaHangBangDiaNhac.Cli;
+using CuaHangBangDiaNhac.Data;
+using CuaHangBangDiaNhac.Data.Seeders;
+using CuaHangBangDiaNhac.ServicesRegisters;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity.UI.Services; 
+using Microsoft.AspNetCore.Identity.UI.Services;
 using CuaHangBangDiaNhac.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,12 +22,27 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 var app = builder.Build();
 
 if (args.Length > 0)
 {
     await CliHandler.Handle(args, app);
     return; 
+}
+
+// Seed Data on Startup
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    await DataSeeder.SeedDataAsync(services);
 }
 
 if (app.Environment.IsDevelopment())
@@ -43,6 +59,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseSession(); // Must be before Authentication
 
 app.UseAuthentication(); 
 app.UseAuthorization();  

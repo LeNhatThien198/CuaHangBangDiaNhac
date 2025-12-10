@@ -35,7 +35,7 @@ public class DataSeeder
             {
                 new Genre { Name = "Rock", Styles = new List<Style>
                     {
-                        new Style { Name = "Classic Rock" }, new Style { Name = "Grunge" }, new Style { Name = "Alternative Rock" },
+                        new Style { Name = "Classic Rock" }, new Style { Name = "Grunge" }, new Style { Name = "Alternative Rock" }, new Style { Name = "Pop Rock" },
                         new Style { Name = "Thrash Metal" }, new Style { Name = "Nu Metal" }, new Style { Name = "Indie Rock" }, new Style { Name = "Soft Rock" }
                     }
                 },
@@ -74,7 +74,9 @@ public class DataSeeder
                 new Brand { Name = "Warner Records" },
                 new Brand { Name = "XL Recordings" },
                 new Brand { Name = "Rocket Recordings" },
-                new Brand { Name = "Reprise Records" }
+                new Brand { Name = "Reprise Records" },
+                new Brand { Name = "Parlophone" },
+                new Brand { Name = "DJM Records" }
             };
             await context.Brands.AddRangeAsync(brands);
             await context.SaveChangesAsync();
@@ -113,6 +115,8 @@ public class DataSeeder
 
             var rock = await context.Genres.FirstAsync(g => g.Name == "Rock");
             var pop = await context.Genres.FirstAsync(g => g.Name == "Pop");
+            var folkCountry = await context.Genres.FirstAsync(g => g.Name == "Folk & Country");
+
 
             var sGrunge = await context.Styles.FirstAsync(s => s.Name == "Grunge");
             var sAltRock = await context.Styles.FirstAsync(s => s.Name == "Alternative Rock");
@@ -122,6 +126,8 @@ public class DataSeeder
             var sClassicRock = await context.Styles.FirstAsync(s => s.Name == "Classic Rock");
             var sNuMetal = await context.Styles.FirstAsync(s => s.Name == "Nu Metal");
             var sIndieRock = await context.Styles.FirstAsync(s => s.Name == "Indie Rock");
+            var sPopRock = await context.Styles.FirstAsync(s => s.Name == "Pop Rock");
+            var sFolkRock = await context.Styles.FirstAsync(s => s.Name == "Folk Rock");
 
             var lpClubBrand = await context.Brands.FirstAsync(b => b.Name == "LP Club");
             var indieBrand = await context.Brands.FirstAsync(b => b.Name == "Indie / Tự phát hành");
@@ -131,6 +137,9 @@ public class DataSeeder
             var geffen = await context.Brands.FirstAsync(b => b.Name == "Geffen Records");
             var blackened = await context.Brands.FirstAsync(b => b.Name == "Blackened Recordings");
             var warnerUs = await context.Brands.FirstAsync(b => b.Name == "Warner Records");
+            var reprise = await context.Brands.FirstAsync(b => b.Name == "Reprise Records");
+            var djm = await context.Brands.FirstAsync(b => b.Name == "DJM Records");
+            var parlophone = await context.Brands.FirstAsync(b => b.Name == "Parlophone");
 
             var nirvana = await context.Artists.FirstAsync(a => a.Name == "Nirvana");
             var ngot = await context.Artists.FirstAsync(a => a.Name == "Ngọt");
@@ -141,6 +150,10 @@ public class DataSeeder
             var chillies = await context.Artists.FirstAsync(a => a.Name == "Chillies");
             var theCassette = await context.Artists.FirstAsync(a => a.Name == "The Cassette");
             var caHoiHoang = await context.Artists.FirstAsync(a => a.Name == "Cá Hồi Hoang");
+            var radiohead = await context.Artists.FirstAsync(a => a.Name == "Radiohead");
+            var johnLennon = await context.Artists.FirstAsync(a => a.Name == "John Lennon");
+            var eltonJohn = await context.Artists.FirstAsync(a => a.Name == "Elton John");
+            var neilYoung = await context.Artists.FirstAsync(a => a.Name == "Neil Young");
 
             var products = new List<Product>
             {
@@ -303,6 +316,112 @@ public class DataSeeder
                         new ProductImage { Url = "/images/products/Nirvana/InUtero/gallery/g2.jpg", IsPrimary = false, DisplayOrder = 3 },
                         new ProductImage { Url = "/images/products/Nirvana/InUtero/gallery/g3.jpg", IsPrimary = false, DisplayOrder = 4 },
                         new ProductImage { Url = "/images/products/Nirvana/InUtero/gallery/g4.jpg", IsPrimary = false, DisplayOrder = 5 }
+                    }
+                },
+
+                new Product {
+                    Name = "OK Computer",
+                    Description = "Phát hành 1997. OK Computer là album thứ ba của Radiohead, phát hành ban đầu tại Nhật 21 May 1997, UK 16 June 1997, US 1 July 1997. Đây là phiên bản album chính thống.",
+                    Price = 1050000m, // VND
+                    Cost = 735000m,
+                    Quantity = 5,
+                    IsPublished = true,
+                    Country = "UK",
+                    ReleaseYear = 1997, // phiên bản này: 1997
+                    Condition = "M (Mint)",
+                    Artist = radiohead,
+                    Brand = parlophone,
+                    Category = vinyl,
+                    Genre = rock,
+                    Style = sAltRock,
+                    Tracklist = "1. Airbag\n2. Paranoid Android\n3. Subterranean Homesick Alien\n4. Exit Music (For a Film)\n5. Let Down\n6. Karma Police\n7. Fitter Happier\n8. Electioneering\n9. Climbing Up the Walls\n10. No Surprises\n11. Lucky\n12. The Tourist",
+                    Images = new List<ProductImage> {
+                        new ProductImage { Url = "/images/products/Radiohead/OKComputer/cover/c.jpg", IsPrimary = true, DisplayOrder = 1 },
+                        new ProductImage { Url = "/images/products/Radiohead/OKComputer/gallery/g1.jpg", IsPrimary = false, DisplayOrder = 2 },
+                        new ProductImage { Url = "/images/products/Radiohead/OKComputer/gallery/g2.jpg", IsPrimary = false, DisplayOrder = 3 },
+                        new ProductImage { Url = "/images/products/Radiohead/OKComputer/gallery/g3.jpg", IsPrimary = false, DisplayOrder = 4 },
+                        new ProductImage { Url = "/images/products/Radiohead/OKComputer/gallery/g4.jpg", IsPrimary = false, DisplayOrder = 5 }
+                    }
+                },
+
+                // --- NEW: John Lennon - Imagine (1971) ---
+                new Product {
+                    Name = "Imagine",
+                    Description = "Phát hành 1971. Imagine là album solo nổi tiếng của John Lennon, phát hành năm 1971 trên Apple Records.",
+                    Price = 550000m,
+                    Cost = 330000m,
+                    Quantity = 4,
+                    IsPublished = true,
+                    Country = "UK/US",
+                    ReleaseYear = 1971,
+                    Condition = "M (Mint)",
+                    Artist = johnLennon,
+                    Brand = appleRec,
+                    Category = vinyl,
+                    Genre = rock,
+                    Style = sPopRock,
+                    Tracklist = "Side One:\n1. Imagine\n2. Crippled Inside\n3. Jealous Guy\n4. It's So Hard\n5. I Don't Wanna Be A Soldier Mama\n\nSide Two:\n1. Gimme Some Truth\n2. Oh My Love\n3. How Do You Sleep?\n4. How?\n5. Oh Yoko!",
+                    Images = new List<ProductImage> {
+                        new ProductImage { Url = "/images/products/JohnLennon/Imagine/cover/c.jpg", IsPrimary = true, DisplayOrder = 1 },
+                        new ProductImage { Url = "/images/products/JohnLennon/Imagine/gallery/g1.jpg", IsPrimary = false, DisplayOrder = 2 },
+                        new ProductImage { Url = "/images/products/JohnLennon/Imagine/gallery/g2.jpg", IsPrimary = false, DisplayOrder = 3 },
+                        new ProductImage { Url = "/images/products/JohnLennon/Imagine/gallery/g3.jpg", IsPrimary = false, DisplayOrder = 4 },
+                        new ProductImage { Url = "/images/products/JohnLennon/Imagine/gallery/g4.jpg", IsPrimary = false, DisplayOrder = 5 }
+                    }
+                },
+
+                // --- NEW: Elton John - Goodbye Yellow Brick Road (1973) ---
+                new Product {
+                    Name = "Goodbye Yellow Brick Road",
+                    Description = "Phát hành 1973. Đây là album đôi (double album) nổi tiếng của Elton John, phát hành 5 October 1973 trên DJM Records.",
+                    Price = 650000m,
+                    Cost = 455000m,
+                    Quantity = 6,
+                    IsPublished = true,
+                    Country = "UK",
+                    ReleaseYear = 1973,
+                    Condition = "M (Mint)",
+                    Artist = eltonJohn,
+                    Brand = djm,
+                    Category = vinyl,
+                    Genre = rock,
+                    Style = sPopRock,
+                    Tracklist = "Side 1: \n1. Funeral for a Friend/Love Lies Bleeding\n2. Candle in the Wind\n3. Bennie and the Jets\n\nSide 2:\n1. Goodbye Yellow Brick Road\n2. This Song Has No Title\n3. Grey Seal\n4. Jamaica Jerk-off\n5. I've Seen That Movie Too\n\nSide 3: \n1. Sweet Painted Lady\n2. The Ballad Of Danny Bailey (1909-34)\n3. Dirty Little Girl\n4. All The Girls Love Alice\n\nSide 4: \n1. Your Sister Can't Twist (But She Can Rock 'n Roll)\n2. Saturday Night's Alright For Fighting\n3. Roy Rogers\n4. Social Disease\n5. Harmony",
+                    Images = new List<ProductImage> {
+                        new ProductImage { Url = "/images/products/EltonJohn/GoodbyeYellowBrickRoad/cover/c.jpg", IsPrimary = true, DisplayOrder = 1 },
+                        new ProductImage { Url = "/images/products/EltonJohn/GoodbyeYellowBrickRoad/gallery/g1.jpg", IsPrimary = false, DisplayOrder = 2 },
+                        new ProductImage { Url = "/images/products/EltonJohn/GoodbyeYellowBrickRoad/gallery/g2.jpg", IsPrimary = false, DisplayOrder = 3 },
+                        new ProductImage { Url = "/images/products/EltonJohn/GoodbyeYellowBrickRoad/gallery/g3.jpg", IsPrimary = false, DisplayOrder = 4 },
+                        new ProductImage { Url = "/images/products/EltonJohn/GoodbyeYellowBrickRoad/gallery/g4.jpg", IsPrimary = false, DisplayOrder = 5 },
+                        new ProductImage { Url = "/images/products/EltonJohn/GoodbyeYellowBrickRoad/gallery/g5.jpg", IsPrimary = false, DisplayOrder = 6 },
+                        new ProductImage { Url = "/images/products/EltonJohn/GoodbyeYellowBrickRoad/gallery/g6.jpg", IsPrimary = false, DisplayOrder = 7 },
+                        new ProductImage { Url = "/images/products/EltonJohn/GoodbyeYellowBrickRoad/gallery/g7.jpg", IsPrimary = false, DisplayOrder = 8 }
+                    }
+                },
+
+                // --- NEW: Neil Young - Harvest (1972) ---
+                new Product {
+                    Name = "Harvest",
+                    Description = "Phát hành 1972. Harvest là album của Neil Young, phát hành ban đầu năm 1972.",
+                    Price = 480000m,
+                    Cost = 336000m,
+                    Quantity = 3,
+                    IsPublished = true,
+                    Country = "US",
+                    ReleaseYear = 1972,
+                    Condition = "M (Mint)",
+                    Artist = neilYoung,
+                    Brand = reprise,
+                    Category = vinyl,
+                    Genre = folkCountry,
+                    Style = sFolkRock, // note: sFolkRock existing under "Folk & Country" earlier; ensure variable exists in context in original file (if not, you can add mapping accordingly)
+                    Tracklist = "Side 1: \n1. Out on the Weekend\n2. Harvest\n3. A Man Needs a Maid\n4. Heart of Gold\n5. Are You Ready for the Country?\n\nSide 2: \n1. Old Man\n2. There's a World\n3. Alabama\n4. The Needle and the Damage Done\n5. Words (Between the Lines of Age)",
+                    Images = new List<ProductImage> {
+                        new ProductImage { Url = "/images/products/NeilYoung/Harvest/cover/c.jpg", IsPrimary = true, DisplayOrder = 1 },
+                        new ProductImage { Url = "/images/products/NeilYoung/Harvest/gallery/g1.jpg", IsPrimary = false, DisplayOrder = 2 },
+                        new ProductImage { Url = "/images/products/NeilYoung/Harvest/gallery/g2.jpg", IsPrimary = false, DisplayOrder = 3 },
+                        new ProductImage { Url = "/images/products/NeilYoung/Harvest/gallery/g3.jpg", IsPrimary = false, DisplayOrder = 4 },
+                        new ProductImage { Url = "/images/products/NeilYoung/Harvest/gallery/g4.jpg", IsPrimary = false, DisplayOrder = 5 }
                     }
                 }
             };

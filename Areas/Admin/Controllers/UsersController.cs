@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace CuaHangBangDiaNhac.Areas.Admin.Controllers
 {
@@ -23,9 +24,22 @@ namespace CuaHangBangDiaNhac.Areas.Admin.Controllers
             _signInManager = signInManager;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string search, string sortOrder)
         {
-            var users = await _userManager.Users.ToListAsync();
+            ViewBag.Search = search;
+            ViewBag.SortOrder = sortOrder;
+
+            var query = _userManager.Users.AsQueryable();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(u => u.UserName.Contains(search)
+                                      || (u.FullName != null && u.FullName.Contains(search))
+                                      || (u.Email != null && u.Email.Contains(search))
+                                      || (u.PhoneNumber != null && u.PhoneNumber.Contains(search)));
+            }
+
+            var users = await query.ToListAsync();
             var userVMs = new List<UserListVM>();
 
             foreach (var user in users)
@@ -38,9 +52,23 @@ namespace CuaHangBangDiaNhac.Areas.Admin.Controllers
                     UserName = user.UserName,
                     Email = user.Email,
                     PhoneNumber = user.PhoneNumber ?? "---",
-                    Role = roles.FirstOrDefault() ?? "Customer", 
-                    IsLocked = await _userManager.IsLockedOutAsync(user) 
+                    Role = roles.FirstOrDefault() ?? "Customer",
+                    IsLocked = await _userManager.IsLockedOutAsync(user)
                 });
+            }
+
+            switch (sortOrder)
+            {
+                case "name_desc": userVMs = userVMs.OrderByDescending(u => u.FullName).ToList(); break;
+                case "email_asc": userVMs = userVMs.OrderBy(u => u.Email).ToList(); break;
+                case "email_desc": userVMs = userVMs.OrderByDescending(u => u.Email).ToList(); break;
+                case "username_asc": userVMs = userVMs.OrderBy(u => u.UserName).ToList(); break;
+                case "username_desc": userVMs = userVMs.OrderByDescending(u => u.UserName).ToList(); break;
+                case "role_asc": userVMs = userVMs.OrderBy(u => u.Role).ThenBy(u => u.FullName).ToList(); break;
+                case "role_desc": userVMs = userVMs.OrderByDescending(u => u.Role).ThenBy(u => u.FullName).ToList(); break;
+                case "status_asc": userVMs = userVMs.OrderBy(u => u.IsLocked).ThenBy(u => u.FullName).ToList(); break;
+                case "status_desc": userVMs = userVMs.OrderByDescending(u => u.IsLocked).ThenBy(u => u.FullName).ToList(); break;
+                default: userVMs = userVMs.OrderBy(u => u.FullName).ToList(); break;
             }
 
             return View(userVMs);

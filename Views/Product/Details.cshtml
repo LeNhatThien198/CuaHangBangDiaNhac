@@ -1,0 +1,377 @@
+@model ProductDetailVM
+@{
+    ViewData["Title"] = Model.Product.Name;
+    var primaryImg = Model.Product.Images?.FirstOrDefault(i => i.IsPrimary)?.Url ?? "/images/no-image.png";
+}
+
+@section Scripts {
+    <link rel="stylesheet" href="~/css/user/product.css" asp-append-version="true" />
+    <script>
+        // Move overlay to body to ensure it sits on top of header (z-index fix)
+        document.addEventListener("DOMContentLoaded", function () {
+            const overlay = document.getElementById("imgViewerOverlay");
+            if (overlay) {
+                document.body.appendChild(overlay);
+            }
+        });
+    </script>
+}
+
+<div class="container product-page-container">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a asp-controller="Home" asp-action="Index" class="text-decoration-none">
+                    <i class="bi bi-house-door-fill me-1"></i>Trang chủ
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a asp-controller="Product" asp-action="Index" class="text-decoration-none">Sản phẩm</a>
+            </li>
+            @if (Model.Product.Category != null)
+            {
+                <li class="breadcrumb-item">
+                    <a href="@Url.Action("Index", "Product", new { categoryId = Model.Product.CategoryId })" class="text-decoration-none">@Model.Product.Category.Name</a>
+                </li>
+            }
+            <li class="breadcrumb-item active" aria-current="page">@Model.Product.Name</li>
+        </ol>
+    </nav>
+
+    <!-- Main Product Detail Card -->
+    <div class="bg-white p-4 rounded shadow-sm mb-5">
+        <div class="row gx-5">
+            <!-- LEFT: GALLERY -->
+            <div class="col-md-6 mb-4">
+                <div class="detail-gallery">
+                    <!-- Main Image Container: Auto height, fits image -->
+                    <div class="main-image-container">
+                        <img id="mainDetailImg" src="@primaryImg" class="detail-main-img" alt="@Model.Product.Name">
+                        <div class="position-absolute top-0 end-0 p-2">
+                            <i class="bi bi-arrows-fullscreen fs-4 text-muted"></i>
+                        </div>
+                    </div>
+
+                    <!-- Thumbs -->
+                    @if (Model.Product.Images != null && Model.Product.Images.Count > 1)
+                    {
+                        <div class="thumb-strip justify-content-center">
+                            @foreach (var img in Model.Product.Images)
+                            {
+                                <img src="@img.Url" class="thumb-img @(img.IsPrimary ? "active" : "")" alt="Thumbnail">
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- RIGHT: INFO -->
+            <div class="col-md-6 mb-4">
+                <div class="product-info-section pl-lg-4" style="position: sticky; top: 90px;">
+                    
+                    <!-- 1. Header Info (Title, Artist, Badges) -->
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center flex-wrap gap-2 mb-2">
+                             @if (Model.Product.PromotionPrice.HasValue) { <span class="badge-custom badge-sale">Giảm giá</span> }
+                             @if (Model.Product.IsPreOrder) { <span class="badge-custom badge-preorder">Pre-order</span> }
+                             
+                             <!-- Condition Tag Logic: [Tag] {Condition} -->
+                             @{
+                                string headerCondClass = "text-dark";
+                                string hCond = Model.Product.Condition;
+                                if (Model.Product.IsUsed && hCond != null)
+                                {
+                                    if (hCond.Contains("M (") || hCond == "M") headerCondClass = "text-u-mint";
+                                    else if (hCond.Contains("NM")) headerCondClass = "text-u-nm";
+                                    else if (hCond.Contains("VG+")) headerCondClass = "text-u-vg-plus";
+                                    else if (hCond.Contains("VG")) headerCondClass = "text-u-vg";
+                                    else if (hCond.Contains("G")) headerCondClass = "text-u-good";
+                                    else if (hCond.Contains("P") || hCond.Contains("F")) headerCondClass = "text-u-poor";
+                                }
+                                else if (!Model.Product.IsUsed)
+                                {
+                                    headerCondClass = "text-u-new";
+                                }
+                             }
+
+                             @if (Model.Product.IsUsed) 
+                             { 
+                                 <div class="d-flex align-items-center">
+                                     <span class="badge-custom badge-used me-2">Cũ</span>
+                                     <span class="fw-bold small @headerCondClass">@(Model.Product.Condition ?? "N/A")</span>
+                                 </div>
+                             } 
+                             else 
+                             { 
+                                 <div class="d-flex align-items-center">
+                                     <span class="badge-custom badge-new me-2">Mới</span>
+                                     <span class="fw-bold small @headerCondClass">@(Model.Product.Condition ?? "M (Mint)")</span>
+                                 </div>
+                             }
+                        </div>
+                        
+                        <h1 class="fw-bold mb-1 display-6">@Model.Product.Name - [@Model.Product.Category?.Name]</h1>
+                        <a href="@Url.Action("Index", new { search = Model.Product.Artist?.Name })" class="artist-link text-decoration-none text-muted fs-5 fw-medium hover-underline">
+                            @(Model.Product.Artist?.Name ?? "Unknown Artist")
+                        </a>
+                    </div>
+
+                    <!-- 2. Price -->
+                    <div class="mb-4 pb-3 border-bottom">
+                        <div class="detail-price">
+                            @if (Model.Product.PromotionPrice.HasValue)
+                            {
+                                <div class="d-flex flex-column">
+                                    <span class="fw-extra-bold text-danger fs-2 lh-1">@Model.Product.PromotionPrice.Value.ToVnd()</span>
+                                    <!-- Original Price BOLD as requested, stacked below -->
+                                    <span class="text-muted text-decoration-line-through small fs-5 fw-bold mt-1">@Model.Product.Price.ToVnd()</span>
+                                </div>
+                            }
+                            else
+                            {
+                                <span class="text-primary fw-extra-bold fs-2">@Model.Product.Price.ToVnd()</span>
+                            }
+                        </div>
+                    </div>
+
+
+                    <!-- 3. Description -->
+                    @if (!string.IsNullOrEmpty(Model.Product.Description))
+                    {
+                        <div class="mb-4">
+                            <h6 class="fw-extra-bold text-uppercase text-dark mb-2">Mô tả sản phẩm</h6>
+                            <div class="text-dark fw-bold" style="line-height: 1.6; font-size: 0.95rem;">
+                                @Html.Raw(Model.Product.Description.Replace("\n", "<br>"))
+                            </div>
+                        </div>
+                    }
+
+                    <!-- 4. Actions (Qty Stepper & Balanced Buttons) -->
+                    @if (Model.Product.Quantity > 0)
+                    {
+                        <div class="action-box mb-4">
+                            <div class="d-flex flex-wrap gap-3 align-items-stretch">
+                                <!-- Quantity Stepper -->
+                                <div class="input-group" style="width: 140px;">
+                                    <button class="btn btn-outline-dark" type="button" id="btnMinus"><i class="bi bi-dash"></i></button>
+                                    <!-- Added no-spinners class -->
+                                    <input type="number" class="form-control text-center fw-bold border-dark no-spinners" id="qtyInput" value="1" min="1" max="@Model.Product.Quantity" style="padding: 0;">
+                                    <button class="btn btn-outline-dark" type="button" id="btnPlus"><i class="bi bi-plus"></i></button>
+                                </div>
+
+                                <!-- Balanced Action Buttons -->
+                                <div class="d-flex gap-2 flex-grow-1">
+                                    @if (Model.Product.IsPreOrder)
+                                    {
+                                        <button class="btn btn-preorder w-100 d-flex align-items-center justify-content-center btn-buy-now" data-id="@Model.Product.Id" style="font-size: 1.2rem;">
+                                            <i class="bi bi-clock-history me-2"></i>ĐẶT TRƯỚC NGAY
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-outline-dark fw-bold w-50 d-flex align-items-center justify-content-center btn-add-to-cart" data-id="@Model.Product.Id" style="font-size: 1.1rem;">
+                                            <i class="bi bi-cart-plus me-2"></i>Thêm vào giỏ
+                                        </button>
+                                        <button class="btn btn-dark fw-bold w-50 d-flex align-items-center justify-content-center btn-buy-now" data-id="@Model.Product.Id" style="font-size: 1.1rem;">
+                                            Mua ngay
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                            <div class="mt-2 text-muted small"><i class="bi bi-check-circle-fill text-success me-1"></i>Còn hàng (@Model.Product.Quantity sản phẩm)</div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="mb-4 p-4 bg-danger bg-opacity-10 rounded-3 border border-danger text-center">
+                            <span class="text-danger fw-bold fs-5 text-uppercase"><i class="bi bi-x-circle me-2"></i>Hết hàng</span>
+                            <div class="text-muted mt-1 small">Sản phẩm này hiện đang tạm hết. Vui lòng quay lại sau.</div>
+                        </div>
+                    }
+
+                    <!-- 5. Specs & Tracklist -->
+                    <div class="specs-section">
+                         <h6 class="fw-extra-bold text-uppercase text-dark mb-3 border-bottom pb-2">Thông tin chi tiết</h6>
+                         <table class="table table-sm mb-4">
+                            <tbody>
+                                <tr>
+                                    <td class="text-dark fw-bold w-25">Hãng phát hành</td>
+                                    <td class="fw-bold spec-brand">@(Model.Product.Brand?.Name ?? "N/A")</td>
+                                </tr>
+                                 <tr>
+                                    <td class="text-dark fw-bold">Thể loại</td>
+                                    <td>
+                                        <a href="@Url.Action("Index", new { genreId = Model.Product.GenreId })" class="text-decoration-none fw-bold spec-genre">
+                                            @(Model.Product.Genre?.Name)
+                                        </a>
+                                    </td>
+                                </tr>
+                                 <tr>
+                                    <td class="text-dark fw-bold">Phong cách</td>
+                                    <td class="fw-bold spec-style">@(Model.Product.Style?.Name)</td>
+                                </tr>
+                                 <tr>
+                                    <td class="text-dark fw-bold">Năm phát hành</td>
+                                    <td class="fw-bold spec-year">@(Model.Product.ReleaseYear?.ToString() ?? "N/A")</td>
+                                </tr>
+                                 <tr>
+                                    <td class="text-dark fw-bold">Quốc gia</td>
+                                    <td class="fw-bold spec-country">@(Model.Product.Country ?? "N/A")</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-dark fw-bold">Tình trạng</td>
+                                    <td class="fw-bold">
+                                        <!-- Dynamic Color Logic -->
+                                        @{
+                                            string conditionClass = "text-dark";
+                                            string cond = Model.Product.Condition;
+                                            if (Model.Product.IsUsed)
+                                            {
+                                                if (cond != null)
+                                                {
+                                                    if (cond.Contains("M (") || cond == "M") conditionClass = "text-u-mint";
+                                                    else if (cond.Contains("NM")) conditionClass = "text-u-nm";
+                                                    else if (cond.Contains("VG+")) conditionClass = "text-u-vg-plus";
+                                                    else if (cond.Contains("VG")) conditionClass = "text-u-vg";
+                                                    else if (cond.Contains("G")) conditionClass = "text-u-good";
+                                                    else if (cond.Contains("P") || cond.Contains("F")) conditionClass = "text-u-poor";
+                                                }
+                                                <span class="@conditionClass">Cũ: @(cond ?? "N/A")</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-u-new">Mới: @(cond ?? "M (Mint)")</span>
+                                            }
+                                        }
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                         @if (!string.IsNullOrEmpty(Model.Product.Tracklist))
+                        {
+                            <h6 class="fw-extra-bold text-uppercase text-dark mb-3 border-bottom pb-2">Danh sách bài hát</h6>
+                            <!-- Tracklist TABLE (No Numbering) -->
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover tracklist-table small">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <!-- Removed Number Col -->
+                                            <th scope="col">Tên bài hát</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{
+                                            var tracks = Model.Product.Tracklist.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+                                        }
+                                        @foreach (var track in tracks)
+                                        {
+                                            <tr>
+                                                <td class="fw-bold text-dark">@track.Trim()</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RELATED PRODUCTS -->
+    @if (Model.RelatedProducts.Any())
+    {
+        <div class="mt-5 border-top pt-5">
+            <h3 class="mb-4 text-uppercase fw-bold text-center">Có thể bạn thích</h3>
+            <div class="row row-cols-2 row-cols-md-4 g-4">
+                @foreach (var prod in Model.RelatedProducts)
+                {
+                     <div class="col">
+                        <div class="product-card h-100 d-flex flex-column"> 
+                            <a href="@Url.Action("Details", "Product", new { id = prod.Id })" class="text-decoration-none d-contents-wrapper flex-grow-1">
+                                <div class="card-img-wrapper">
+                                    <div class="badges-container">
+                                        @if (prod.PromotionPrice.HasValue) { <span class="badge-custom badge-sale">Giảm giá</span> }
+                                        @if (prod.IsPreOrder) { <span class="badge-custom badge-preorder">Pre-order</span> }
+                                        @if (prod.IsUsed) 
+                                        { 
+                                            <span class="badge-custom badge-used">Cũ</span> 
+                                        } 
+                                        else if ((DateTime.UtcNow - prod.CreatedAt).TotalDays < 30) 
+                                        { 
+                                            <span class="badge-custom badge-new">Mới</span> 
+                                        }
+                                    </div>
+
+                                    <img src="@(prod.Images?.FirstOrDefault(i => i.IsPrimary)?.Url ?? "/images/no-image.png")" class="card-img-top" alt="@prod.Name">
+                                </div>
+                                <div class="card-body d-flex flex-column p-3">
+                                    <h6 class="card-title fw-bold text-dark mb-1 text-truncate-2" style="min-height: 2.5em;">@prod.Name</h6>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <p class="card-artist text-muted small mb-0 text-truncate">@(prod.Artist?.Name)</p>
+                                        <span class="badge bg-light text-dark border">@(prod.Category?.Name)</span>
+                                    </div>
+                                </div>
+                            </a>
+                            
+                            <div class="card-footer-group p-2 pt-0 bg-white">
+                                 <div class="card-price pb-2">
+                                     @if (prod.PromotionPrice.HasValue)
+                                    {
+                                        <div class="fw-bold text-danger fs-6 text-nowrap">@prod.PromotionPrice.Value.ToVnd()</div>
+                                        <div class="small text-muted text-decoration-line-through text-nowrap">@prod.Price.ToVnd()</div>
+                                    } else {
+                                         <div class="fw-bold text-primary fs-6 text-nowrap">@prod.Price.ToVnd()</div>
+                                    }
+                                </div>
+                                <div class="card-actions d-flex gap-2 pb-2">
+                                    @if (prod.IsPreOrder)
+                                    {
+                                         <button class="btn btn-preorder btn-sm flex-grow-1 w-100 btn-buy-now" data-id="@prod.Id">
+                                            <i class="bi bi-clock-history me-1"></i>Đặt trước
+                                        </button>
+                                    }
+                                    else if (prod.Quantity > 0)
+                                    {
+                                        <button class="btn btn-outline-primary btn-sm flex-grow-1 btn-add-to-cart" data-id="@prod.Id" title="Thêm vào giỏ">
+                                            <i class="bi bi-cart-plus"></i>
+                                        </button>
+                                        <button class="btn btn-dark btn-sm flex-grow-1 btn-buy-now" data-id="@prod.Id">
+                                            Mua ngay
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-danger btn-sm flex-grow-1 fw-bold" disabled>HẾT HÀNG</button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+<!-- OVERLAY VIEWER (DISCOGS STYLE) -->
+<div id="imgViewerOverlay" class="image-viewer-overlay">
+    <div id="viewerCloseBtn" class="viewer-close-btn">&times;</div>
+    
+    <div class="viewer-content-wrapper">
+        <img id="viewerImage" class="viewer-img" src="" alt="Full View">
+        <div class="viewer-caption">@Model.Product.Name</div>
+        
+        @if (Model.Product.Images != null && Model.Product.Images.Count > 1)
+        {
+            <div class="viewer-thumbs-container">
+                @foreach (var img in Model.Product.Images)
+                {
+                    <img src="@img.Url" class="viewer-thumb @(img.IsPrimary ? "active" : "")" alt="Thumb">
+                }
+            </div>
+        }
+    </div>
+</div>

@@ -1,22 +1,233 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model HomeViewModel
+@{
+    ViewData["Title"] = "Trang chủ";
+    ViewData["HideHeader"] = false;
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+
+
+<div class="position-relative" style="z-index: 2;">
+    <div class="position-relative" style="z-index: 2;">
+        <!-- HERO CAROUSEL -->
+        @if (Model.CarouselItems.Any())
+        {
+            <div class="hero-section">
+                <div id="heroCarousel" class="carousel slide hero-carousel" data-bs-ride="carousel" data-bs-interval="5000">
+                    <div class="carousel-indicators">
+                        @for (int i = 0; i < Model.CarouselItems.Count; i++)
+                        {
+                            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="@i" class="@(i == 0 ? "active" : "")"></button>
+                        }
+                    </div>
+                    
+                    <div class="carousel-inner">
+                        @for (int i = 0; i < Model.CarouselItems.Count; i++)
+                        {
+                            var item = Model.CarouselItems[i];
+                            <div class="carousel-item @(i == 0 ? "active" : "")">
+                                <div class="carousel-item-wrapper position-relative">
+                                    <a href="@(item.ProductId.HasValue ? Url.Action("Details", "Product", new { id = item.ProductId }) : Url.Action("Index", "Home"))" class="d-block text-decoration-none">
+                                        <img src="@item.ImageUrl" class="carousel-img" alt="@item.Title">
+                                    </a>
+                                    <div class="carousel-overlay">
+                                        <div class="carousel-caption-content">
+                                            <h2 class="carousel-title">@item.Title</h2>
+                                            <p class="carousel-subtitle">@item.Subtitle</p>
+                                            
+                                            @if (item.ProductId.HasValue)
+                                            {
+                                                if (item.IsPreOrder)
+                                                {
+                                                    <button class="btn btn-preorder btn-lg rounded-0 px-5 fw-bold btn-buy-now" data-id="@item.ProductId">ĐẶT TRƯỚC</button>
+                                                }
+                                                else
+                                                {
+                                                    <button class="btn btn-light btn-lg rounded-0 px-5 fw-bold btn-buy-now" data-id="@item.ProductId">MUA NGAY</button>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <a href="@Url.Action("Index", "Home")" class="btn btn-light btn-lg rounded-0 px-5 fw-bold">XEM NGAY</a>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+
+        <div class="container pb-5">
+            
+            <!-- SECTION 1: NEW ARRIVALS -->
+            <section class="mb-5">
+                <div class="section-header">
+                    <h3 class="section-title"><span>Mới phát hành</span></h3>
+                </div>
+                
+                <!-- Grid: 4 cards max as per Controller. Using col-6 (mobile) col-md-3 (desktop) -->
+                <div class="row row-cols-2 row-cols-md-4 g-4">
+                    @foreach (var product in Model.NewArrivals)
+                    {
+                        <div class="col">
+                            <div class="product-card h-100 d-flex flex-column"> 
+                                <a href="@Url.Action("Details", "Product", new { id = product.Id })" class="text-decoration-none d-contents-wrapper flex-grow-1">
+                                    <div class="card-img-wrapper">
+                                        <div class="badges-container">
+                                            @if (product.PromotionPrice.HasValue) { <span class="badge-custom badge-sale">Giảm giá</span> }
+                                            @if (product.IsPreOrder) { <span class="badge-custom badge-preorder">Pre-order</span> }
+                                            @if (product.IsUsed) 
+                                            { 
+                                                <span class="badge-custom badge-used">Cũ</span> 
+                                            } 
+                                            else if ((DateTime.UtcNow - product.CreatedAt).TotalDays < 30) 
+                                            { 
+                                                <span class="badge-custom badge-new">Mới</span> 
+                                            }
+                                        </div>
+
+                                        <img src="@(product.Images?.FirstOrDefault(i => i.IsPrimary)?.Url ?? "/images/no-image.png")" class="card-img-top" alt="@product.Name">
+                                    </div>
+                                    <div class="card-body d-flex flex-column p-3">
+                                        <h6 class="card-title fw-bold text-dark mb-1 text-truncate-2" style="min-height: 2.5em;">@product.Name</h6>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <p class="card-artist text-muted small mb-0 text-truncate">@(product.Artist?.Name ?? "Unknown")</p>
+                                            <span class="badge bg-light text-dark border">@(product.Category?.Name)</span>
+                                        </div>
+                                    </div>
+                                </a>
+                                
+                                <div class="card-footer-group p-2 pt-0 bg-white">
+                                     <div class="card-price pb-2">
+                                         @if (product.PromotionPrice.HasValue)
+                                        {
+                                            <div class="fw-bold text-danger fs-6 text-nowrap">@product.PromotionPrice.Value.ToVnd()</div>
+                                            <div class="small text-muted text-decoration-line-through text-nowrap">@product.Price.ToVnd()</div>
+                                        } else {
+                                             <div class="fw-bold text-primary fs-6 text-nowrap">@product.Price.ToVnd()</div>
+                                        }
+                                    </div>
+                                    <div class="card-actions d-flex gap-2 pb-2">
+                                        @if (product.IsPreOrder)
+                                        {
+                                             <button class="btn btn-preorder btn-sm flex-grow-1 w-100 btn-buy-now" data-id="@product.Id">
+                                                <i class="bi bi-clock-history me-1"></i>Đặt trước
+                                            </button>
+                                        }
+                                        else if (product.Quantity > 0)
+                                        {
+                                            <button class="btn btn-outline-primary btn-sm flex-grow-1 btn-add-to-cart" data-id="@product.Id" title="Thêm vào giỏ">
+                                                <i class="bi bi-cart-plus"></i>
+                                            </button>
+                                            <button class="btn btn-dark btn-sm flex-grow-1 btn-buy-now" data-id="@product.Id">
+                                                Mua ngay
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-danger btn-sm flex-grow-1 fw-bold" disabled>HẾT HÀNG</button>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </section>
+
+            <!-- SECTION 2: FEATURED / BEST SELLING -->
+            @if (Model.FeaturedProducts.Any())
+            {
+                <section class="mb-5">
+                    <div class="section-header">
+                        <h3 class="section-title"><span>Sản phẩm bán chạy</span></h3>
+                    </div>
+
+                    <div class="row row-cols-2 row-cols-md-4 g-4">
+                        @foreach (var product in Model.FeaturedProducts)
+                        {
+                            <div class="col">
+                                <div class="product-card h-100 d-flex flex-column"> 
+                                    <a href="@Url.Action("Details", "Product", new { id = product.Id })" class="text-decoration-none d-contents-wrapper flex-grow-1">
+                                        <div class="card-img-wrapper">
+                                            <div class="badges-container">
+                                                @if (product.PromotionPrice.HasValue) { <span class="badge-custom badge-sale">Giảm giá</span> }
+                                                @if (product.IsPreOrder) { <span class="badge-custom badge-preorder">Pre-order</span> }
+                                                @if (product.IsUsed) 
+                                                { 
+                                                    <span class="badge-custom badge-used">Cũ</span> 
+                                                } 
+                                                else if ((DateTime.UtcNow - product.CreatedAt).TotalDays < 30) 
+                                                { 
+                                                    <span class="badge-custom badge-new">Mới</span> 
+                                                }
+                                            </div>
+
+                                            <img src="@(product.Images?.FirstOrDefault(i => i.IsPrimary)?.Url ?? "/images/no-image.png")" class="card-img-top" alt="@product.Name">
+                                        </div>
+                                        <div class="card-body d-flex flex-column p-3">
+                                            <h6 class="card-title fw-bold text-dark mb-1 text-truncate-2" style="min-height: 2.5em;">@product.Name</h6>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <p class="card-artist text-muted small mb-0 text-truncate">@(product.Artist?.Name ?? "Unknown")</p>
+                                                <span class="badge bg-light text-dark border">@(product.Category?.Name)</span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    
+                                    <div class="card-footer-group p-2 pt-0 bg-white">
+                                         <div class="card-price pb-2">
+                                             @if (product.PromotionPrice.HasValue)
+                                            {
+                                                <div class="fw-bold text-danger fs-6 text-nowrap">@product.PromotionPrice.Value.ToVnd()</div>
+                                                <div class="small text-muted text-decoration-line-through text-nowrap">@product.Price.ToVnd()</div>
+                                            } else {
+                                                 <div class="fw-bold text-primary fs-6 text-nowrap">@product.Price.ToVnd()</div>
+                                            }
+                                        </div>
+                                         <div class="card-actions d-flex gap-2 pb-2">
+                                            @if (product.IsPreOrder)
+                                            {
+                                                 <button class="btn btn-preorder btn-sm flex-grow-1 w-100 btn-buy-now" data-id="@product.Id">
+                                                    <i class="bi bi-clock-history me-1"></i>Đặt trước
+                                                </button>
+                                            }
+                                            else if (product.Quantity > 0)
+                                            {
+                                                <button class="btn btn-outline-primary btn-sm flex-grow-1 btn-add-to-cart" data-id="@product.Id" title="Thêm vào giỏ">
+                                                    <i class="bi bi-cart-plus"></i>
+                                                </button>
+                                                <button class="btn btn-dark btn-sm flex-grow-1 btn-buy-now" data-id="@product.Id">
+                                                    Mua ngay
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <button class="btn btn-danger btn-sm flex-grow-1 fw-bold" disabled>HẾT HÀNG</button>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </section>
+            }
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <style>
+        /* Force background on body for Home Page */
+        body {
+            /* Fallback color */
+            background-color: #f8f9fa !important;
+            /* New Image: Music/Vinyl Light Aesthetic */
+            background: url('https://images.unsplash.com/photo-1494232410401-ad00d5433cfa?q=80&w=2000&auto=format&fit=crop') no-repeat center center fixed !important;
+            background-size: cover !important;
+        }
+    </style>
+}

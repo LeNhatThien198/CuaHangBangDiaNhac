@@ -1,14 +1,14 @@
-﻿/* --- COMPONENT: BUTTONS & INPUTS --- */
+/* --- COMPONENT: BUTTONS & INPUTS --- */
 .form-control {
     border-radius: 4px;
     border: 1px solid #ced4da;
     padding: 10px 15px;
 }
 
-    .form-control:focus {
-        border-color: #555;
-        box-shadow: 0 0 0 0.2rem rgba(80, 80, 80, 0.25);
-    }
+.form-control:focus {
+    border-color: #555;
+    box-shadow: 0 0 0 0.2rem rgba(80, 80, 80, 0.25);
+}
 
 .btn-dark {
     background-color: #222;
@@ -17,24 +17,171 @@
     font-weight: 600;
 }
 
-    .btn-dark:hover {
-        background-color: #000;
-        border-color: #000;
-    }
-
-/* --- COMPONENT: PRODUCT UI --- */
-.product-card {
-    border: none;
-    background: #fff;
-    transition: transform 0.3s, box-shadow 0.3s;
-    border-radius: 8px;
-    overflow: hidden;
+.btn-dark:hover {
+    background-color: #000;
+    border-color: #000;
 }
 
-    .product-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-    }
+/* --- COMPONENT: PRODUCT UI --- */
+/* --- COMPONENT: PRODUCT UI --- */
+/* UPDATED: Rich Card Styles (Global) */
+.product-card {
+    background: #fff;
+    /* White background for the card */
+    border: 1px solid #000;
+    /* Solid Black Border */
+    border-radius: 8px;
+    /* Rounded corners for the card container */
+    overflow: hidden;
+    /* Clip content within border */
+    transition: all 0.3s ease;
+    height: 100%;
+    /* Uniform height */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /* Stronger shadow */
+    position: relative;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    /* Deeper shadow on hover */
+    border-color: #adb5bd;
+}
+
+.card-img-wrapper {
+    position: relative;
+    width: 100%;
+    padding-top: 100%;
+    /* Square aspect ratio for image area */
+    overflow: hidden;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #000;
+}
+
+.card-img-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.product-card:hover .card-img-top {
+    transform: scale(1.05);
+    /* Slight zoom on image only */
+}
+
+.card-body {
+    padding: 1rem;
+    text-align: left;
+    /* Align text left for better readability in card */
+}
+
+/* UPDATED: Multi-line truncation */
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+    color: #212529;
+
+    /* Logic for wrapping long text (2 lines) */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 2.6rem;
+    /* Reserve space for 2 lines to keep alignment */
+    line-height: 1.3;
+}
+
+.card-artist {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-bottom: 0.8rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-price {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #0d6efd;
+    /* BLUE (Primary) */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    /* Spread price if multiple */
+}
+
+.card-price-promo {
+    color: #dc3545;
+}
+
+.card-price-original {
+    text-decoration: line-through;
+    color: #adb5bd;
+    font-size: 0.85rem;
+    font-weight: normal;
+    margin-left: auto;
+    /* Push to right */
+}
+
+/* BADGES (Global) */
+.badges-container {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    z-index: 5;
+    align-items: flex-start;
+}
+
+.badge-custom {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #fff;
+    border-radius: 4px;
+    /* Matches card radius style */
+    letter-spacing: 0.5px;
+    /* High contrast shadows and border for visibility on ANY image background */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.badge-sale {
+    background-color: #dc3545;
+    /* Red (Sale is special, keep red) */
+}
+
+.badge-new {
+    background-color: #198754;
+    /* Green (Success) - MATCH ADMIN */
+}
+
+.badge-preorder {
+    background-color: #ffc107;
+    /* Yellow (Warning) - MATCH ADMIN */
+    color: #000;
+    /* Dark text for yellow bg */
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    /* Darker border for light bg */
+}
+
+.badge-used {
+    background-color: #212529;
+    /* Dark/Black - MATCH ADMIN */
+}
 
 .badge-cart {
     background-color: #e63946 !important;
@@ -55,17 +202,17 @@
     transition: all 0.3s;
 }
 
-    .social-icon:hover {
-        background: #fff;
-        color: #000;
-        transform: rotate(360deg);
-    }
+.social-icon:hover {
+    background: #fff;
+    color: #000;
+    transform: rotate(360deg);
+}
 
 .btn-google {
     background-color: #fff;
     color: #3c4043;
     border: 1px solid #dadce0;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     transition: all 0.2s ease;
     position: relative;
     font-weight: 500;
@@ -75,51 +222,204 @@
     gap: 10px;
 }
 
-    .btn-google:hover {
-        background-color: #f8f9fa;
-        border-color: #dadce0;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-        color: #202124;
-    }
+.btn-google:hover {
+    background-color: #f8f9fa;
+    border-color: #dadce0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    color: #202124;
+}
 
-    .btn-google:active {
-        background-color: #f1f3f4;
-        box-shadow: none;
-    }
+.btn-google:active {
+    background-color: #f1f3f4;
+    box-shadow: none;
+}
 
 .google-icon {
     width: 20px;
     height: 20px;
 }
+
 .pagination .page-link {
-    color: #212529; /* Màu chữ đen (Dark) */
-    border: 1px solid #dee2e6;
+    color: #000;
+    /* Dark text */
+    border: 1px solid #000 !important;
+    /* Black Border */
     background-color: #fff;
 }
 
-    /* 2. Hiệu ứng khi di chuột (Hover) */
-    .pagination .page-link:hover {
-        color: #000;
-        background-color: #e9ecef; /* Xám nhạt */
-        border-color: #dee2e6;
-    }
+/* 2. Hiệu ứng khi di chuột (Hover) */
+.pagination .page-link:hover {
+    color: #000;
+    background-color: #e9ecef;
+    /* Xám nhạt */
+    border-color: #000 !important;
+}
 
 /* 3. Nút đang chọn (Active) - NỀN ĐEN, CHỮ TRẮNG */
 .pagination .page-item.active .page-link {
     z-index: 3;
-    color: #fff !important; /* Chữ trắng */
-    background-color: #212529 !important; /* Nền đen (bg-dark) */
-    border-color: #212529 !important; /* Viền đen */
+    color: #fff !important;
+    /* Chữ trắng */
+    background-color: #000 !important;
+    /* Nền đen (bg-dark) */
+    border-color: #000 !important;
+    /* Viền đen */
 }
 
 /* 4. Nút bị vô hiệu hóa (Disabled) - Ví dụ nút Trước/Sau khi hết trang */
 .pagination .page-item.disabled .page-link {
     color: #6c757d;
     background-color: #fff;
-    border-color: #dee2e6;
+    border-color: #000 !important;
+    opacity: 0.8;
 }
 
 /* 5. Xóa viền xanh (Focus outline) khi bấm vào */
 .pagination .page-link:focus {
-    box-shadow: 0 0 0 0.25rem rgba(33, 37, 41, 0.25); /* Shadow màu đen nhạt thay vì xanh */
+    box-shadow: 0 0 0 0.25rem rgba(33, 37, 41, 0.25);
+    /* Shadow màu đen nhạt thay vì xanh */
+}
+
+/* FOOTER GROUP FOR CARDS (Price Separator) */
+.card-footer-group {
+    background: #fff;
+    border-top: 1px solid #000;
+    /* Black Separator Line */
+    margin-top: auto;
+    /* Push to bottom */
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-footer-group .card-price {
+    margin: 0;
+    /* Reset margin */
+}
+
+/* FORCE SEPARATOR ON HOME */
+.row-cols-2 .card-footer-group,
+.row-cols-md-4 .card-footer-group {
+    border-top: 1px solid #000 !important;
+}
+
+/* --- HEADER REFINEMENTS --- */
+/* 1. Active Nav Link */
+.navbar-nav .nav-link {
+    position: relative;
+    padding-bottom: 5px;
+    /* Space for border */
+    transition: color 0.3s;
+}
+
+.navbar-nav .nav-link.active,
+.navbar-nav .nav-link:hover {
+    color: #fff !important;
+}
+
+.navbar-nav .nav-link.active::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: #fff;
+    transform: scaleX(1);
+    transition: transform 0.3s ease;
+}
+
+/* 2. Admin Button */
+.nav-item-admin .nav-link {
+    border: 1px solid #ffc107;
+    /* Warning color border */
+    border-radius: 4px;
+    padding: 6px 12px !important;
+    margin-left: 10px;
+    transition: all 0.3s;
+}
+
+.nav-item-admin .nav-link:hover {
+    background-color: #ffc107;
+    color: #000 !important;
+}
+
+/* 3. Tighter Cart Badge */
+.position-relative {
+    position: relative !important;
+}
+
+.badge-cart-tight {
+    top: 0 !important;
+    right: 0 !important;
+    left: auto !important;
+    transform: translate(50%, -40%) !important;
+    font-size: 0.6rem;
+    padding: 0.25em 0.5em;
+    background-color: #e63946;
+}
+
+/* 4. Auth Buttons */
+.btn-auth-primary {
+    background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+    color: #fff !important;
+    border: none;
+    border-radius: 50px;
+    padding: 6px 20px;
+    font-weight: 600;
+    box-shadow: 0 4px 6px rgba(13, 110, 253, 0.3);
+    transition: all 0.3s ease;
+}
+
+.btn-auth-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(13, 110, 253, 0.4);
+}
+
+.btn-auth-secondary {
+    background: transparent;
+    color: #fff !important;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 50px;
+    padding: 6px 20px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-auth-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #fff;
+    transform: translateY(-2px);
+}
+
+/* 4b. Pre-order Button */
+.btn-preorder {
+    background-color: #ffc107 !important;
+    color: #000 !important;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    font-weight: 700;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+}
+
+.btn-preorder:hover {
+    background-color: #e0a800 !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+/* 5. Dropdown Hover Fix */
+.dropdown-menu-end .dropdown-item:hover,
+.dropdown-menu-end .dropdown-item:focus {
+    background-color: #333;
+    /* Dark gray for contrast */
+    color: #fff !important;
+}
+
+/* Keep warning text warning colored but legible on hover */
+.dropdown-menu-end .dropdown-item.text-warning:hover {
+    color: #ffc107 !important;
+    /* Keep yellow */
+    background-color: #444;
+    /* Slightly lighter gray */
 }
