@@ -6,7 +6,7 @@ namespace CuaHangBangDiaNhac.Models
     {
         public int Id { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Vui lòng nhập {0}")]
         [Display(Name = "Đường dẫn ảnh")]
         public string Url { get; set; }
 

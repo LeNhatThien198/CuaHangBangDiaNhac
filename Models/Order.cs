@@ -20,6 +20,10 @@ namespace CuaHangBangDiaNhac.Models
         [Display(Name = "Giảm giá")]
         public decimal Discount { get; set; }
 
+        [Precision(18, 2)]
+        [Display(Name = "Số tiền đã cọc")]
+        public decimal DepositAmount { get; set; } = 0;
+
         public string? UserId { get; set; }
         public User? User { get; set; }
 
@@ -39,6 +43,15 @@ namespace CuaHangBangDiaNhac.Models
                 return itemsTotal + ShippingFee - Discount;
             }
         }
+
+        [Display(Name = "Phương thức thanh toán")]
+        public PaymentMethod PaymentMethod { get; set; } = PaymentMethod.COD;
+
+        [Display(Name = "Ghi chú")]
+        public string? Note { get; set; }
+
+        [Display(Name = "Đơn cọc (Pre-order)")]
+        public bool IsPreOrderDeposit { get; set; } = false;
     }
 
     public enum OrderStatus
@@ -49,5 +62,11 @@ namespace CuaHangBangDiaNhac.Models
         [Display(Name = "Đã giao hàng")] Delivered,
         [Display(Name = "Đã huỷ")] Cancelled,
         [Display(Name = "Đã trả hàng")] Returned
+    }
+
+    public enum PaymentMethod
+    {
+        [Display(Name = "Thanh toán khi nhận hàng (COD)")] COD,
+        [Display(Name = "Chuyển khoản / Đặt cọc")] Deposit
     }
 }

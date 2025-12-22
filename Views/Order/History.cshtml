@@ -1,0 +1,299 @@
+@using CuaHangBangDiaNhac.Extensions
+@using System.Linq
+@model List<CuaHangBangDiaNhac.Models.Order>
+@{
+    ViewData["Title"] = "Lịch sử mua hàng";
+    // Need full path for shared partial from another controller
+}
+
+<div class="profile-root">
+     @{ ViewData["ActiveTab"] = "History"; }
+    <partial name="~/Views/Profile/_ProfileHeader.cshtml" />
+    
+    <div class="container-fluid artist-content">
+        <!-- Breadcrumb -->
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a asp-controller="Home" asp-action="Index" class="text-decoration-none">
+                        <i class="bi bi-house-door-fill me-1"></i>Trang chủ
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a asp-controller="Profile" asp-action="Index" class="text-decoration-none">Hồ sơ cá nhân</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Lịch sử đơn hàng</li>
+            </ol>
+        </nav>
+
+         <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                 <h4 class="fw-bold mb-1">Lịch sử đơn hàng</h4>
+                 <p class="text-muted mb-0">Theo dõi trạng thái đơn hàng của bạn</p>
+            </div>
+            <a asp-controller="Product" asp-action="Index" class="btn btn-outline-dark rounded-pill px-4 fw-bold">
+                <i class="bi bi-cart-plus me-2"></i>Tiếp tục mua sắm
+            </a>
+        </div>
+
+        <!-- Search & Sort Toolbar -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body py-3">
+                <form asp-action="History" method="get">
+                    <div class="row g-2 align-items-center">
+                        <div class="col-md-10">
+                             <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0">
+                                    <i class="bi bi-search text-muted"></i>
+                                </span>
+                                <input type="text" name="searchString" value="@ViewData["CurrentSearch"]" class="form-control border-start-0" placeholder="Tìm kiếm theo Mã đơn hàng hoặc Tên sản phẩm..." style="box-shadow: none;">
+                                <button class="btn btn-dark fw-bold px-4" type="submit">Tìm kiếm</button>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            @{
+                                string currentSort = ViewData["CurrentSort"] as string;
+                                var sortLabels = new Dictionary<string, string>
+                                {
+                                    { "date_desc", "Mới nhất" },
+                                    { "date_asc", "Cũ nhất" },
+                                    { "total_asc", "Giá tăng dần" },
+                                    { "total_desc", "Giá giảm dần" },
+                                    { "status_asc", "Trạng thái (A-Z)" },
+                                    { "status_desc", "Trạng thái (Z-A)" }
+                                };
+                                var currentSortLabel = sortLabels.ContainsKey(currentSort ?? "date_desc") ? sortLabels[currentSort ?? "date_desc"] : "Mới nhất";
+                            }
+                             <div class="dropdown w-100">
+                                <button class="btn btn-outline-secondary dropdown-toggle w-100 d-flex justify-content-between align-items-center fw-bold bg-white text-dark" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span><i class="bi bi-filter me-2"></i>@currentSortLabel</span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 w-100">
+                                    <li><h6 class="dropdown-header text-uppercase small fw-bold">Thời gian</h6></li>
+                                    <li><a class="dropdown-item @(currentSort == "date_desc" || currentSort == null ? "active" : "")" asp-action="History" asp-route-sortOrder="date_desc" asp-route-searchString="@ViewData["CurrentSearch"]"><i class="bi bi-sort-down me-2"></i>Mới nhất</a></li>
+                                    <li><a class="dropdown-item @(currentSort == "date_asc" ? "active" : "")" asp-action="History" asp-route-sortOrder="date_asc" asp-route-searchString="@ViewData["CurrentSearch"]"><i class="bi bi-sort-up me-2"></i>Cũ nhất</a></li>
+                                    
+                                    <li><hr class="dropdown-divider"></li>
+                                    
+                                    <li><h6 class="dropdown-header text-uppercase small fw-bold">Giá trị đơn</h6></li>
+                                    <li><a class="dropdown-item @(currentSort == "total_asc" ? "active" : "")" asp-action="History" asp-route-sortOrder="total_asc" asp-route-searchString="@ViewData["CurrentSearch"]"><i class="bi bi-sort-numeric-down me-2"></i>Giá tăng dần</a></li>
+                                    <li><a class="dropdown-item @(currentSort == "total_desc" ? "active" : "")" asp-action="History" asp-route-sortOrder="total_desc" asp-route-searchString="@ViewData["CurrentSearch"]"><i class="bi bi-sort-numeric-down-alt me-2"></i>Giá giảm dần</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="nav order-tabs mb-4 px-1 pb-2 pt-1 flex-nowrap overflow-auto" id="orderTabs" style="scrollbar-width: thin; overflow-y: hidden;">
+            <button class="btn btn-sm btn-outline-dark me-2 active rounded-pill px-3 fw-bold" onclick="filterOrders('all', this)">Tất cả</button>
+            <button class="btn btn-sm btn-outline-warning me-2 rounded-pill px-3 fw-bold" onclick="filterOrders('Pending', this)">Chờ xử lý</button>
+            <button class="btn btn-sm btn-outline-info me-2 rounded-pill px-3 fw-bold" onclick="filterOrders('Processing', this)">Đang xử lý</button>
+            <button class="btn btn-sm btn-outline-primary me-2 rounded-pill px-3 fw-bold" onclick="filterOrders('Shipped', this)">Đang vận chuyển</button>
+            <button class="btn btn-sm btn-outline-success me-2 rounded-pill px-3 fw-bold" onclick="filterOrders('Delivered', this)">Đã giao hàng</button>
+            <button class="btn btn-sm btn-outline-danger me-2 rounded-pill px-3 fw-bold" onclick="filterOrders('Cancelled', this)">Đã hủy</button>
+            <button class="btn btn-sm btn-outline-secondary me-2 rounded-pill px-3 fw-bold" onclick="filterOrders('Returned', this)">Hoàn/Trả</button>
+        </div>
+
+        <div id="orderListContainer">
+            @if (Model == null || !Model.Any())
+            {
+                 <div class="text-center py-5 border rounded-3 bg-white shadow-sm">
+                    <i class="bi bi-inbox fs-1 text-muted opacity-50"></i>
+                    <h5 class="mt-3 fw-bold">Chưa có đơn hàng nào</h5>
+                </div>
+            }
+            else
+            {
+                @foreach (var order in Model)
+                {
+                    var badgeClass = "";
+                    var statusDisplay = "";
+                    var canCancel = false;
+
+                    switch (order.Status)
+                    {
+                        case CuaHangBangDiaNhac.Models.OrderStatus.Pending: 
+                            badgeClass = "bg-warning text-dark"; statusDisplay = "Chờ xử lý"; canCancel = true; break;
+                        case CuaHangBangDiaNhac.Models.OrderStatus.Processing: 
+                            badgeClass = "bg-info text-dark"; statusDisplay = "Đang xử lý"; canCancel = true; break;
+                        case CuaHangBangDiaNhac.Models.OrderStatus.Shipped: 
+                            badgeClass = "bg-primary text-white"; statusDisplay = "Đang vận chuyển"; break;
+                        case CuaHangBangDiaNhac.Models.OrderStatus.Delivered: 
+                            badgeClass = "bg-success text-white"; statusDisplay = "Đã giao hàng"; break;
+                        case CuaHangBangDiaNhac.Models.OrderStatus.Cancelled: 
+                            badgeClass = "bg-danger text-white"; statusDisplay = "Đã hủy"; break;
+                        case CuaHangBangDiaNhac.Models.OrderStatus.Returned: 
+                             badgeClass = "bg-secondary text-white"; statusDisplay = "Đã hoàn/trả"; break;
+                    }
+
+                    <div class="card mb-3 filter-item shadow-sm border-0" data-status="@order.Status.ToString()" style="background-color: #fff;">
+                        <div class="card-header bg-transparent border-bottom border-light py-3" role="button" data-bs-toggle="collapse" data-bs-target="#collapse-@order.Id">
+                            <div class="row align-items-center">
+                                <div class="col-md-3">
+                                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Mã Đơn hàng</small>
+                                    <strong class="fs-5 text-dark">#@order.Id</strong>
+                                </div>
+                                <div class="col-md-3">
+                                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Ngày đặt</small>
+                                    <span class="fw-bold text-dark">@order.CreatedAt.ToString("dd/MM/yyyy")</span>
+                                </div>
+                                <div class="col-md-3">
+                                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Trạng thái</small>
+                                    <span class="badge @badgeClass rounded-pill">@statusDisplay</span>
+                                </div>
+                                <div class="col-md-3 text-md-end mt-3 mt-md-0">
+                                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Tổng cộng</small>
+                                    <span class="fw-bold text-danger fs-5">@order.Total.ToVnd()</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-3 d-flex justify-content-end gap-2 align-items-center">
+                                 @if (canCancel)
+                                 {
+                                     <form asp-action="Cancel" asp-route-id="@order.Id" method="post" class="d-inline">
+                                         <button type="button" class="btn btn-sm btn-outline-danger fw-bold rounded-pill" onclick="confirmCancel(this)">
+                                             Hủy đơn hàng
+                                         </button>
+                                     </form>
+                                 }
+                                <button class="btn btn-sm btn-link text-muted text-decoration-none fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-@order.Id">
+                                    Chi tiết <i class="bi bi-chevron-down ms-1"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Details Pane -->
+                        <div id="collapse-@order.Id" class="collapse">
+                            <div class="p-4 bg-light">
+                                <div class="row g-4">
+                                    <div class="col-lg-8">
+                                        <h6 class="fw-bold text-dark mb-3">Sản phẩm</h6>
+                                        @foreach (var item in order.Items)
+                                        {
+                                            <div class="d-flex align-items-center mb-3 pb-3 border-bottom border-light last-no-border">
+                                                <img src="@(item.Product?.Images?.FirstOrDefault()?.Url ?? "/images/default-album-art.png")" 
+                                                     class="rounded me-3 shadow-sm" width="60" height="60" style="object-fit:cover;" onerror="this.src='/images/default-album-art.png'">
+                                                <div class="flex-grow-1">
+                                                    <div class="fw-bold text-dark">@item.Product?.Name</div>
+                                                    <div class="small text-muted mb-1"><i class="bi bi-mic me-1"></i>@item.Product?.Artist?.Name</div>
+                                                    <div class="small text-muted">
+                                                        <span class="fw-bold">@item.UnitPrice.ToVnd()</span> x @item.Quantity
+                                                    </div>
+                                                </div>
+                                                <div class="fw-bold text-dark">@((item.UnitPrice * item.Quantity).ToVnd())</div>
+                                            </div>
+                                        }
+                                        
+                                        @if (!string.IsNullOrEmpty(order.Note))
+                                        {
+                                            <div class="alert alert-light border border-light mt-3 mb-0 text-muted small">
+                                                <i class="bi bi-chat-text-fill me-2"></i><span class="fw-bold">Ghi chú:</span> @order.Note
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="col-lg-4">
+                                         <div class="p-3 rounded border border-light bg-white shadow-sm" style="position: sticky; top: 1rem;">
+                                             <h6 class="fw-bold text-dark mb-3">Thanh toán</h6>
+                                             <div class="mb-3">
+                                                 <div class="d-flex justify-content-between small text-muted mb-1">
+                                                     <span>Phương thức:</span>
+                                                     <span class="fw-bold text-dark">@order.PaymentMethod</span>
+                                                 </div>
+                                                 <div class="d-flex justify-content-between small text-muted">
+                                                     <span>Trạng thái:</span>
+                                                     @if (order.Status == CuaHangBangDiaNhac.Models.OrderStatus.Delivered || (order.PaymentMethod == CuaHangBangDiaNhac.Models.PaymentMethod.Deposit && order.DepositAmount >= order.Total))
+                                                     {
+                                                         <span class="badge bg-success bg-opacity-10 text-success">Đã thanh toán</span>
+                                                     }
+                                                     else
+                                                     {
+                                                         <span class="badge bg-warning bg-opacity-10 text-warning">Chờ thanh toán</span>
+                                                     }
+                                                 </div>
+                                             </div>
+                                             <table class="w-100 mb-3 text-muted small">
+                                                 <tr>
+                                                     <td>Tạm tính:</td>
+                                                     <td class="text-end fw-bold text-dark">@order.Items.Sum(i => i.UnitPrice * i.Quantity).ToVnd()</td>
+                                                 </tr>
+                                                 <tr>
+                                                     <td>Vận chuyển:</td>
+                                                     <td class="text-end fw-bold text-dark">+ @order.ShippingFee.ToVnd()</td>
+                                                 </tr>
+                                                 <tr>
+                                                     <td>Giảm giá:</td>
+                                                     <td class="text-end text-danger fw-bold">- @order.Discount.ToVnd()</td>
+                                                 </tr>
+                                                 <tr style="border-top: 1px solid #eee;">
+                                                     <td class="pt-2 fw-bold text-uppercase text-dark">Tổng cộng:</td>
+                                                     <td class="pt-2 text-end text-warning fs-6 fw-bold">@order.Total.ToVnd()</td>
+                                                 </tr>
+                                             </table>
+                                             <div class="mt-3 pt-3 border-top border-light small text-muted">
+                                                 <i class="bi bi-pin-map-fill me-1"></i> <strong class="text-dark">Giao tới:</strong> 
+                                                 @if(order.ShippingAddress != null)
+                                                 {
+                                                     <span>@string.Join(", ", new[] { order.ShippingAddress.Province, order.ShippingAddress.Line2, order.ShippingAddress.Line1 }.Where(s => !string.IsNullOrWhiteSpace(s)))</span>
+                                                 }
+                                                 else
+                                                 {
+                                                     <span class="fst-italic text-danger">Thông tin địa chỉ đã bị xóa.</span>
+                                                 }
+                                             </div>
+                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function filterOrders(status, btn) {
+            // 1. Reset Active State
+            var buttons = document.querySelectorAll('#orderTabs button');
+            buttons.forEach(b => b.classList.remove('active'));
+            
+            // 2. Set Active
+            btn.classList.add('active');
+
+            // 3. Filter Items
+            const items = document.querySelectorAll('.filter-item');
+            items.forEach(item => {
+                const itemStatus = item.getAttribute('data-status');
+                if (status === 'all') { item.style.display = 'block'; return; }
+                if (itemStatus === status) {
+                     item.style.display = 'block';
+                } else {
+                     item.style.display = 'none';
+                }
+            });
+        }
+
+        function confirmCancel(btn) {
+            Swal.fire({
+                title: "Xác nhận hủy?",
+                text: "Bạn có chắc chắn muốn hủy đơn hàng này không?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#dc3545",
+                cancelButtonColor: "#333",
+                confirmButtonText: "Đồng ý",
+                cancelButtonText: "Quay lại"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    btn.closest('form').submit();
+                }
+            });
+        }
+    </script>
+}

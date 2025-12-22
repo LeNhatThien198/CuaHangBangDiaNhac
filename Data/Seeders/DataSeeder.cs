@@ -29,6 +29,17 @@ public class DataSeeder
             }
         }
 
+        // Backfill Default Avatar
+        var usersWithoutAvatar = await userManager.Users.Where(u => u.AvatarUrl == null || u.AvatarUrl == "").ToListAsync();
+        if (usersWithoutAvatar.Any())
+        {
+            foreach (var u in usersWithoutAvatar)
+            {
+                u.AvatarUrl = "/images/default-user.png";
+                await userManager.UpdateAsync(u);
+            }
+        }
+
         if (!context.Genres.Any())
         {
             var genres = new List<Genre>

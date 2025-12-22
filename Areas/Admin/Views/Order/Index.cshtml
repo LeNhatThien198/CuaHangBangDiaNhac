@@ -1,0 +1,360 @@
+@using CuaHangBangDiaNhac.Models
+@using CuaHangBangDiaNhac.Extensions
+@model IEnumerable<CuaHangBangDiaNhac.Models.Order>
+
+@{
+    ViewData["Title"] = "Quản lý Đơn hàng";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+    var currentStatus = ViewData["CurrentStatus"] as OrderStatus?;
+    
+    // Pagination
+    var pager = ViewBag.Pagination as CuaHangBangDiaNhac.ViewModels.Shared.Pagination;
+    
+    string search = ViewData["CurrentSearch"] as string;
+    string currentSort = ViewData["CurrentSort"] as string;
+
+    var sortLabels = new Dictionary<string, string>
+    {
+        { "date_desc", "Mới nhất" },
+        { "date_asc", "Cũ nhất" },
+        { "total_asc", "Tăng dần" },
+        { "total_desc", "Giảm dần" },
+        { "status_asc", "Trạng thái (A-Z)" },
+        { "status_desc", "Trạng thái (Z-A)" }
+    };
+    var currentSortLabel = sortLabels.ContainsKey(currentSort ?? "date_desc") ? sortLabels[currentSort ?? "date_desc"] : "Mới nhất";
+}
+
+<div class="page-header">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="text-decoration-none">
+                    <i class="bi bi-house-door-fill me-1"></i>Quản trị
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <span class="text-muted fw-bold">Đơn hàng</span>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">Danh sách đơn hàng</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="card shadow-sm border-0 table-card mb-5">
+    <div class="card-header bg-white py-3">
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+            <h6 class="mb-0 fw-bold d-flex align-items-center">
+                <i class="bi bi-clipboard-data me-2"></i>Danh sách đơn hàng
+            </h6>
+
+            <form asp-action="Index" method="get" class="flex-grow-1 d-flex gap-2">
+                <input type="hidden" name="status" value="@(currentStatus)" />
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" name="searchString" value="@search"
+                           class="form-control border-start-0 bg-light"
+                           placeholder="Tìm ID, Tên, Email, SĐT..." />
+                    <button type="submit" class="btn btn-dark">Tìm kiếm</button>
+                </div>
+
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2 fw-bold" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-filter"></i> @currentSortLabel
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                        <li><h6 class="dropdown-header text-uppercase small fw-bold">Thời gian</h6></li>
+                        <li><a class="dropdown-item @(currentSort == "date_desc" || currentSort == null ? "active" : "")" asp-action="Index" asp-route-sortOrder="date_desc" asp-route-searchString="@search" asp-route-status="@currentStatus"><i class="bi bi-sort-down me-2"></i>Mới nhất</a></li>
+                        <li><a class="dropdown-item @(currentSort == "date_asc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="date_asc" asp-route-searchString="@search" asp-route-status="@currentStatus"><i class="bi bi-sort-up me-2"></i>Cũ nhất</a></li>
+
+                        <li><hr class="dropdown-divider"></li>
+
+                        <li><h6 class="dropdown-header text-uppercase small fw-bold">Tổng tiền</h6></li>
+                        <li><a class="dropdown-item @(currentSort == "total_asc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="total_asc" asp-route-searchString="@search" asp-route-status="@currentStatus"><i class="bi bi-sort-numeric-down me-2"></i>Tăng dần</a></li>
+                        <li><a class="dropdown-item @(currentSort == "total_desc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="total_desc" asp-route-searchString="@search" asp-route-status="@currentStatus"><i class="bi bi-sort-numeric-down-alt me-2"></i>Giảm dần</a></li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Filter Tabs -->
+        <div class="mt-3">
+             <div class="nav flex-nowrap overflow-auto pb-1" style="scrollbar-width: thin;">
+                <a asp-action="Index" asp-route-searchString="@search" asp-route-sortOrder="@currentSort" class="btn btn-sm me-2 rounded-pill px-3 fw-bold @(currentStatus == null ? "btn-dark active" : "btn-outline-dark")" style="white-space: nowrap;">
+                    Tất cả
+                </a>
+                <a asp-action="Index" asp-route-status="@OrderStatus.Pending" asp-route-searchString="@search" asp-route-sortOrder="@currentSort" class="btn btn-sm me-2 rounded-pill px-3 fw-bold @(currentStatus == OrderStatus.Pending ? "btn-warning text-dark active" : "btn-outline-warning")" style="white-space: nowrap;">
+                    Chờ xử lý
+                </a>
+                <a asp-action="Index" asp-route-status="@OrderStatus.Processing" asp-route-searchString="@search" asp-route-sortOrder="@currentSort" class="btn btn-sm me-2 rounded-pill px-3 fw-bold @(currentStatus == OrderStatus.Processing ? "btn-info text-dark active" : "btn-outline-info")" style="white-space: nowrap;">
+                    Đang xử lý
+                </a>
+                <a asp-action="Index" asp-route-status="@OrderStatus.Shipped" asp-route-searchString="@search" asp-route-sortOrder="@currentSort" class="btn btn-sm me-2 rounded-pill px-3 fw-bold @(currentStatus == OrderStatus.Shipped ? "btn-primary active" : "btn-outline-primary")" style="white-space: nowrap;">
+                    Đang vận chuyển
+                </a>
+                <a asp-action="Index" asp-route-status="@OrderStatus.Delivered" asp-route-searchString="@search" asp-route-sortOrder="@currentSort" class="btn btn-sm me-2 rounded-pill px-3 fw-bold @(currentStatus == OrderStatus.Delivered ? "btn-success active" : "btn-outline-success")" style="white-space: nowrap;">
+                    Đã giao hàng
+                </a>
+                <a asp-action="Index" asp-route-status="@OrderStatus.Cancelled" asp-route-searchString="@search" asp-route-sortOrder="@currentSort" class="btn btn-sm me-2 rounded-pill px-3 fw-bold @(currentStatus == OrderStatus.Cancelled ? "btn-danger active" : "btn-outline-danger")" style="white-space: nowrap;">
+                    Đã hủy
+                </a>
+                <a asp-action="Index" asp-route-status="@OrderStatus.Returned" asp-route-searchString="@search" asp-route-sortOrder="@currentSort" class="btn btn-sm me-2 rounded-pill px-3 fw-bold @(currentStatus == OrderStatus.Returned ? "btn-secondary active" : "btn-outline-secondary")" style="white-space: nowrap;">
+                    Hoàn/Trả
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light text-uppercase small text-muted">
+                <tr>
+                    <th class="ps-4" style="width: 80px;">ID</th>
+                    <th style="min-width: 200px;">Khách hàng</th>
+                    <th style="min-width: 120px;">Ngày đặt</th>
+                    <th style="min-width: 100px;">Tổng tiền</th>
+                    <th style="min-width: 120px;">Trạng thái</th>
+                    <th style="min-width: 200px;">Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <div class="opacity-50 mb-2"><i class="bi bi-inbox fs-1"></i></div>
+                            <div class="text-muted fw-bold">Không tìm thấy đơn hàng nào.</div>
+                        </td>
+                    </tr>
+                }
+                
+                @foreach (var item in Model)
+                {
+                    var badgeClass = item.Status switch {
+                        OrderStatus.Pending => "bg-warning text-dark",
+                        OrderStatus.Processing => "bg-info text-dark",
+                        OrderStatus.Shipped => "bg-primary",
+                        OrderStatus.Delivered => "bg-success",
+                        OrderStatus.Cancelled => "bg-danger",
+                        OrderStatus.Returned => "bg-secondary",
+                        _ => "bg-light text-dark border"
+                    };
+
+                    var statusLabel = item.Status switch {
+                        OrderStatus.Pending => "Chờ xử lý",
+                        OrderStatus.Processing => "Đang xử lý",
+                        OrderStatus.Shipped => "Đang vận chuyển",
+                        OrderStatus.Delivered => "Đã giao hàng",
+                        OrderStatus.Cancelled => "Đã hủy",
+                        OrderStatus.Returned => "Hoàn/Trả",
+                        _ => item.Status.ToString()
+                    };
+
+                    <tr style="cursor: pointer; transition: background 0.2s;" onclick="toggleDetails('#collapse-@item.Id')" class="order-row">
+                        <td class="ps-4 fw-bold text-dark text-muted small">#@item.Id</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                    <img src="@(item.User?.AvatarUrl ?? "/images/default-user.png")" class="rounded-circle me-2 border shadow-sm" width="35" height="35" style="object-fit:cover;" onerror="this.src='/images/default-user.png'">
+                                    <div>
+                                    <div class="fw-bold text-dark" style="font-size: 0.95rem;">@(item.User?.UserName ?? item.ShippingAddress?.ReceiverName ?? "Khách lẻ")</div>
+                                    <div class="small text-muted" style="font-size: 0.75rem;">@(item.User?.Email ?? "No Email")</div>
+                                    </div>
+                            </div>
+                        </td>
+                        <td class="text-muted fw-bold" style="font-size: 0.9rem;">@item.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                        <td class="fw-extra-bold text-danger">@item.Total.ToVnd()</td>
+                        <td><span class="badge rounded-pill @badgeClass fw-bold px-3 py-2">@statusLabel</span></td>
+                        <td onclick="event.stopPropagation()">
+                            <div class="d-flex align-items-center gap-2">
+                                <form asp-action="UpdateStatus" method="post" class="d-flex gap-2 align-items-center">
+                                    <input type="hidden" name="id" value="@item.Id" />
+                                    <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
+                                    
+                                    <select name="newStatus" class="form-select form-select-sm fw-bold border-secondary shadow-sm" style="width: 170px; border-radius: 8px;" asp-for="@item.Status" asp-items="Html.GetEnumSelectList<OrderStatus>()">
+                                    </select>
+                                    <button type="submit" class="btn btn-dark btn-sm fw-bold rounded-pill px-3 shadow-sm">
+                                        <i class="bi bi-save me-1"></i>Lưu
+                                    </button>
+                                </form>
+
+                                <button class="btn btn-sm btn-outline-secondary fw-bold rounded-pill px-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-@item.Id">
+                                    Chi tiết
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <tr class="collapse-row">
+                        <td colspan="6" class="p-0 border-0">
+                            <div class="collapse bg-light border-bottom" id="collapse-@item.Id">
+                                <div class="p-4">
+                                    <div class="row g-4">
+                                        <div class="col-12">
+                                            <!-- Products Table -->
+                                            <div class="card shadow-sm border-0 mb-4">
+                                                <div class="card-header bg-white py-3">
+                                                    <h6 class="mb-0 fw-bold">Sản phẩm</h6>
+                                                </div>
+                                                <div class="table-responsive">
+                                                    <table class="table align-middle mb-0">
+                                                        <thead class="bg-light">
+                                                            <tr class="text-secondary text-uppercase small">
+                                                                <th class="ps-4">Sản phẩm</th>
+                                                                <th class="text-end">Đơn giá</th>
+                                                                <th class="text-center">Số lượng</th>
+                                                                <th class="text-end pe-4">Thành tiền</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach (var prod in item.Items)
+                                                            {
+                                                                <tr>
+                                                                    <td class="ps-4">
+                                                                        <div class="d-flex align-items-center">
+                                                                            <img src="@(prod.Product?.Images?.FirstOrDefault()?.Url ?? "/images/default-album-art.png")" 
+                                                                                 class="rounded me-3 border" style="width: 50px; height: 50px; object-fit: cover; flex-shrink: 0;" 
+                                                                                 onerror="this.src='/images/default-album-art.png'">
+                                                                            <div>
+                                                                                <div class="fw-bold text-dark">@prod.Product?.Name</div>
+                                                                                <div class="small text-muted"><i class="bi bi-mic me-1"></i>@prod.Product?.Artist?.Name</div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td class="text-end fw-bold text-muted">@prod.UnitPrice.ToVnd()</td>
+                                                                    <td class="text-center fw-bold">x @prod.Quantity</td>
+                                                                    <td class="text-end fw-bold pe-4">@((prod.UnitPrice * prod.Quantity).ToVnd())</td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                        <tfoot class="bg-light">
+                                                             <tr>
+                                                                <td colspan="3" class="text-end pt-3">Tổng tiền hàng:</td>
+                                                                <td class="text-end fw-bold pt-3 pe-4">@item.Items.Sum(i => i.UnitPrice * i.Quantity).ToVnd()</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td colspan="3" class="text-end border-0">Phí vận chuyển:</td>
+                                                                <td class="text-end fw-bold border-0 pe-4">@item.ShippingFee.ToVnd()</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td colspan="3" class="text-end border-0">Giảm giá:</td>
+                                                                <td class="text-end fw-bold text-danger border-0 pe-4">- @item.Discount.ToVnd()</td>
+                                                            </tr>
+                                                             <tr>
+                                                                <td colspan="3" class="text-end border-0 pt-3 pb-3 h5 fw-bold text-dark">TỔNG CỘNG:</td>
+                                                                <td class="text-end h4 fw-bold text-danger border-0 pt-3 pb-3 pe-4">@item.Total.ToVnd()</td>
+                                                            </tr>
+                                                        </tfoot>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Customer, Shipping & Payment -->
+                                            <div class="card shadow-sm border-0">
+                                                <div class="card-header bg-white py-3">
+                                                    <h6 class="mb-0 fw-bold">Thông tin Đơn hàng</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-md-4 mb-3 mb-md-0 border-end">
+                                                            <h6 class="text-muted text-uppercase small fw-bold mb-3">Người mua</h6>
+                                                            <p class="mb-1"><span class="fw-bold">Username:</span> @item.User?.UserName</p>
+                                                            <p class="mb-1"><span class="fw-bold">Tên:</span> @item.User?.FullName</p>
+                                                            <p class="mb-1"><span class="fw-bold">Email:</span> @item.User?.Email</p>
+                                                            <p class="mb-0"><span class="fw-bold">SĐT:</span> @item.User?.PhoneNumber</p>
+                                                        </div>
+                                                        <div class="col-md-4 mb-3 mb-md-0 border-end">
+                                                            <h6 class="text-muted text-uppercase small fw-bold mb-3">Địa chỉ nhận hàng</h6>
+                                                            <div class="bg-light p-3 rounded h-100">
+                                                                <p class="fw-bold mb-1">@item.ShippingAddress?.ReceiverName</p>
+                                                                <p class="mb-1 text-muted">@item.ShippingAddress?.PhoneNumber</p>
+                                                                <p class="mb-0 small">
+                                                                    @string.Join(", ", new[] { item.ShippingAddress?.Line1, item.ShippingAddress?.Line2, item.ShippingAddress?.City, item.ShippingAddress?.Province }.Where(s => !string.IsNullOrEmpty(s)))
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <h6 class="text-muted text-uppercase small fw-bold mb-3">Thanh toán</h6>
+                                                            <div class="bg-light p-3 rounded h-100">
+                                                                 <div class="d-flex justify-content-between mb-2">
+                                                                    <span class="text-muted">Phương thức</span>
+                                                                    <span class="fw-bold">@item.PaymentMethod</span>
+                                                                </div>
+                                                                 <div class="d-flex justify-content-between align-items-center">
+                                                                    <span class="text-muted">Tình trạng</span>
+                                                                    @if (item.Status == OrderStatus.Delivered || (item.PaymentMethod == PaymentMethod.Deposit && item.DepositAmount >= item.Total))
+                                                                    {
+                                                                         <span class="badge bg-success bg-opacity-10 text-success">Đã thanh toán</span>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                         <span class="badge bg-warning bg-opacity-10 text-warning">Chờ thanh toán</span>
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (pager != null && pager.TotalPages > 1)
+    {
+        <div class="card-footer bg-white py-3 border-top-0">
+            <nav>
+                <ul class="pagination justify-content-center mb-0 pagination-sm">
+                    <li class="page-item @(pager.PageNumber > 1 ? "" : "disabled")">
+                        <a class="page-link" asp-action="Index" 
+                           asp-route-page="@(pager.PageNumber - 1)" 
+                           asp-route-searchString="@search" 
+                           asp-route-status="@currentStatus"
+                           asp-route-sortOrder="@currentSort">Trước</a>
+                    </li>
+                    @for (var i = 1; i <= pager.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == pager.PageNumber ? "active" : "")">
+                            <a class="page-link" asp-action="Index" 
+                               asp-route-page="@i" 
+                               asp-route-searchString="@search" 
+                               asp-route-status="@currentStatus"
+                               asp-route-sortOrder="@currentSort">@i</a>
+                        </li>
+                    }
+                    <li class="page-item @(pager.PageNumber < pager.TotalPages ? "" : "disabled")">
+                        <a class="page-link" asp-action="Index" 
+                           asp-route-page="@(pager.PageNumber + 1)" 
+                           asp-route-searchString="@search" 
+                           asp-route-status="@currentStatus"
+                           asp-route-sortOrder="@currentSort">Sau</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function toggleDetails(targetId) {
+            const collapseElement = document.querySelector(targetId);
+            if (collapseElement) {
+                const bsCollapse = new bootstrap.Collapse(collapseElement, { toggle: true });
+            }
+        }
+    </script>
+    <style>
+        .order-row:hover { background-color: #f8f9fa; }
+        .fw-extra-bold { font-weight: 800; }
+        .avatar-circle { background-color: #e9ecef; }
+    </style>
+}

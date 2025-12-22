@@ -14,8 +14,8 @@ html {
 body {
     margin: 0;
     padding: 0;
-    background-color: #e2e6ea;
-    /* Medium Gray (Use this one) */
+    background-color: #f4f7f6;
+    /* Clean Off-White */
     display: flex;
     flex-direction: column;
     min-height: 100vh;
@@ -108,4 +108,321 @@ footer a {
 
 footer a:hover {
     color: #fff;
+}
+
+/* --- 4. GLOBAL HIGH CONTRAST OVERRIDES --- */
+
+/* Force darker body text */
+body {
+    color: #212529;
+    /* Darker black */
+}
+
+.text-muted {
+    color: #6c757d !important;
+    /* Bootstrap Default Gray (Readable) */
+}
+
+.text-secondary {
+    color: #495057 !important;
+    /* Darker Gray */
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: #000;
+}
+
+.profile-card-header h5 {
+    font-weight: 800 !important;
+    letter-spacing: -0.5px;
+}
+
+.profile-sidebar {
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08) !important;
+}
+
+.profile-content-card {
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08) !important;
+}
+
+.admin-order-table td,
+.order-card .col-md-3 {
+    white-space: normal;
+    word-break: break-word;
+}
+
+.status-badge {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    font-weight: 700;
+}
+
+
+.btn-admin-dashboard {
+    color: #000 !important;
+}
+
+/* --- 5. PROFILE PAGE REDESIGN ("PRO ARTIST" LIGHT THEME) --- */
+
+.profile-root {
+    background-color: #f8f9fa;
+    /* Light Gray Background */
+    min-height: 100vh;
+    color: #212529;
+    /* Dark Text */
+    padding-bottom: 5rem;
+}
+
+/* Cover Section */
+/* Cover Section */
+.artist-header-wrapper {
+    /* Premium Vinyl Background with Dark Overlay */
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.85) 100%),
+        url('https://images.unsplash.com/photo-1461360370896-922624d12aa1?q=80&w=1920&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    /* Parallax effect */
+    padding-top: 76px;
+    /* Offset fixed header if needed, or adjust based on layout */
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.artist-cover {
+    height: 150px;
+    /* Spacer */
+    background: transparent;
+}
+
+.artist-info-container {
+    padding: 0 2rem;
+    display: flex;
+    align-items: flex-end;
+    gap: 2rem;
+    margin-top: -50px;
+    /* Pull up into spacer */
+    position: relative;
+    z-index: 10;
+}
+
+.artist-avatar-wrapper {
+    width: 180px;
+    height: 180px;
+    position: relative;
+    border-radius: 50%;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    flex-shrink: 0;
+}
+
+.artist-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid rgba(255, 255, 255, 1);
+    /* Solid White Border */
+}
+
+.artist-avatar-edit {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background: #fff;
+    color: #212529;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s;
+}
+
+.artist-avatar-edit:hover {
+    transform: scale(1.1);
+}
+
+.artist-details h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin: 0;
+    line-height: 1.1;
+    color: #fff !important;
+    /* Force White */
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.artist-details .badge {
+    vertical-align: middle;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: #fff;
+    backdrop-filter: blur(4px);
+}
+
+/* Horizontal Nav */
+.artist-nav {
+    margin-top: 2rem;
+    padding: 0 2rem;
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+    /* Center items */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.artist-nav-link {
+    color: rgba(255, 255, 255, 0.75) !important;
+    /* Muted White */
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.artist-nav-link:hover {
+    color: #fff !important;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.artist-nav-link.active {
+    color: #fff !important;
+    border-bottom-color: #fff;
+    background: transparent;
+}
+
+/* Logout Button Style */
+.artist-nav form button {
+    background: linear-gradient(135deg, #FF416C 0%, #FF4B2B 100%) !important;
+    /* Vibrant Red Gradient */
+    backdrop-filter: blur(5px);
+    border: none !important;
+    /* No border needed for gradient button */
+    border-radius: 50px;
+    padding: 0.5rem 2rem;
+    /* Wider padding */
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    height: 48px;
+    color: #fff !important;
+    box-shadow: 0 4px 15px rgba(255, 75, 43, 0.4);
+    /* Red Glow */
+}
+
+.artist-nav form button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 75, 43, 0.6) !important;
+    /* Stronger Red Glow */
+    filter: brightness(1.1);
+}
+
+/* Minimal Forms */
+.artist-content {
+    margin-top: 3rem;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 20;
+}
+
+.form-minimal label {
+    color: #495057;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.form-minimal-control {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #ced4da;
+    /* Light border */
+    border-radius: 0;
+    color: #212529;
+    /* Dark Text */
+    padding: 0.5rem 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+    width: 100%;
+    transition: border-color 0.3s;
+}
+
+.form-minimal-control:focus {
+    background: transparent;
+    outline: none;
+    border-bottom-color: #ffc107;
+    color: #000;
+}
+
+.form-minimal-control[readonly] {
+    color: #6c757d;
+    border-bottom-style: dashed;
+    cursor: not-allowed;
+}
+
+/* Admin Zone */
+.artist-admin-zone {
+    background: #fff;
+    border-radius: 12px;
+    padding: 2rem;
+    border: 1px solid #dee2e6;
+    margin-top: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.btn-artist-save {
+    background: #ffc107;
+    color: #000;
+    font-weight: 700;
+    border-radius: 50px;
+    padding: 0.8rem 2.5rem;
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-artist-save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 193, 7, 0.4);
+}
+
+/* Fix Hitbox Issues */
+.btn-artist-save,
+.btn-outline-secondary,
+.btn-outline-danger,
+.btn-outline-warning,
+.btn-artist-save-small {
+    position: relative;
+    z-index: 50;
+    /* Ensure buttons are above other elements */
+    cursor: pointer;
+}
+
+.artist-info-container {
+    pointer-events: none;
+    /* Let clicks pass through empty areas if overlapping */
+}
+
+.artist-info-container>* {
+    pointer-events: auto;
+    /* Re-enable clicks on actual content */
 }

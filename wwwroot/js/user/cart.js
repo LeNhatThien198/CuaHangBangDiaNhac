@@ -14,6 +14,11 @@ $(document).ready(function () {
             btn.prop('disabled', false);
             btn.removeClass('btn-loading');
         });
+
+        // FIX: Recalculate totals if inputs are restored by browser
+        setTimeout(function () { // Small delay to ensure DOM update
+            updateGrandTotal();
+        }, 100);
     });
 
     // --- UTILS ---
@@ -225,6 +230,37 @@ $(document).ready(function () {
 
         $.post('/Cart/UpdateQuantity', { productId: productId, quantity: quantity }, function (response) {
             if (response.success) {
+                if (response.shouldReload) {
+                    location.reload();
+                    return;
+                }
+
+                // 1. Update Badge
+                if (response.cartCount !== undefined) {
+                    $('.badge-cart').text(response.cartCount);
+                }
+
+                // 2. Update Row Data
+                const checkbox = $(`.item-checkbox[data-id="${productId}"]`);
+                const rowTotalEl = $(`#total-${productId}`);
+
+                // Update Checkbox Data attributes for calculation
+                checkbox.attr('data-qty', quantity);
+
+                // If the controller returns itemTotal, update it
+                if (response.itemTotal !== undefined) {
+                    checkbox.attr('data-raw', response.itemTotal);
+                    rowTotalEl.attr('data-raw', response.itemTotal);
+                    rowTotalEl.text(response.formattedItemTotal);
+                }
+
+                // 3. Recalculate Sidebar
+                updateGrandTotal();
+
+                // Optional: Show small success feedback (toast)
+                // Swal.fire({...}) // Maybe too noisy for just qty change
+            } else {
+                // If failed (e.g. removed or error), reload to sync
                 location.reload();
             }
         });
@@ -278,22 +314,55 @@ $(document).ready(function () {
     const siteFooter = $('footer');
     const stickyBar = $('#sticky-cart-bar');
 
-    if (siteFooter.length && stickyBar.length) {
-        $(window).on('scroll resize', function () {
-            const footerTop = siteFooter.offset().top;
-            const windowHeight = $(window).height();
-            const scrollTop = $(window).scrollTop();
-            const currentScrollBottom = scrollTop + windowHeight;
+    function adjustStickyBar() {
+        if (!siteFooter.length || !stickyBar.length) return;
 
-            const overlap = currentScrollBottom - footerTop;
+        const footerTop = siteFooter.offset().top;
+        const windowHeight = $(window).height();
+        const scrollTop = $(window).scrollTop();
+        const currentScrollBottom = scrollTop + windowHeight;
 
-            if (overlap > 0) {
-                stickyBar.css('bottom', `${overlap}px`);
-            } else {
-                stickyBar.css('bottom', '0px');
-            }
-        });
+        const overlap = currentScrollBottom - footerTop;
+
+        if (overlap > 0) {
+            stickyBar.css('bottom', `${overlap}px`);
+        } else {
+            stickyBar.css('bottom', '0px');
+        }
     }
+
+    if (siteFooter.length && stickyBar.length) {
+        $(window).on('scroll resize', adjustStickyBar);
+        // Initial check
+        adjustStickyBar();
+        // Check again after all images load (layout shift)
+        $(window).on('load', adjustStickyBar);
+    }
+
+    // --- CHECKOUT NAVIGATION ---
+    $('#btn-process-checkout').click(function () {
+        const selectedIds = [];
+        $('.item-checkbox:checked').each(function () {
+            selectedIds.push($(this).data('id'));
+        });
+
+        if (selectedIds.length === 0) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Chưa chọn sản phẩm',
+                text: 'Vui lòng chọn ít nhất một sản phẩm để thanh toán.',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000
+            });
+            return;
+        }
+
+        // Redirect with Query Parameters
+        const queryString = selectedIds.map(id => `selectedIds=${id}`).join('&');
+        window.location.href = `/Checkout?${queryString}`;
+    });
 
     // Initial Calc
     updateGrandTotal();

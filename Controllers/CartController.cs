@@ -18,16 +18,41 @@ namespace CuaHangBangDiaNhac.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        [HttpGet]
+        public async Task<IActionResult> Index(string searchString, string sortOrder)
         {
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["CurrentSearch"] = searchString;
+
             var cart = await GetCart();
-            var sortedItems = cart.Items
-                .OrderBy(ci => ci.Product?.Artist?.Name)
-                .ThenBy(ci => ci.Product?.Name);
+            IEnumerable<CartItem> query = cart.Items;
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                query = query.Where(s => s.Product.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase)
+                                      || (s.Product.Artist?.Name ?? "").Contains(searchString, StringComparison.OrdinalIgnoreCase));
+            }
+
+            switch (sortOrder)
+            {
+                case "name_desc":
+                    query = query.OrderByDescending(s => s.Product.Name);
+                    break;
+                case "price_asc":
+                    query = query.OrderBy(s => (s.Product.PromotionPrice ?? s.Product.Price));
+                    break;
+                case "price_desc":
+                    query = query.OrderByDescending(s => (s.Product.PromotionPrice ?? s.Product.Price));
+                    break;
+                default:
+                    // Default: Group by Artist, then Product Name
+                    query = query.OrderBy(ci => ci.Product?.Artist?.Name).ThenBy(ci => ci.Product?.Name);
+                    break;
+            }
 
             var viewModel = new CartViewModel
             {
-                Items = sortedItems.Select(ci => new CartItemViewModel
+                Items = query.Select(ci => new CartItemViewModel
                 {
                     ProductId = ci.ProductId,
                     ProductName = ci.Product?.Name ?? "Unknown",
@@ -40,7 +65,8 @@ namespace CuaHangBangDiaNhac.Controllers
                     Price = ci.Product?.Price ?? 0,
                     PromotionPrice = ci.Product?.PromotionPrice,
                     Quantity = ci.Quantity,
-                    MaxStock = ci.Product?.Quantity ?? 0
+                    MaxStock = ci.Product?.Quantity ?? 0,
+                    // Pass current search down if needed, or total logic
                 }).ToList()
             };
 
@@ -88,20 +114,28 @@ namespace CuaHangBangDiaNhac.Controllers
                 if (quantity > 0)
                 {
                     item.Quantity = quantity;
+                    await _context.SaveChangesAsync();
+
+                    // Recalculate totals
+                    var itemTotal = (item.Product.PromotionPrice ?? item.Product.Price) * item.Quantity;
+                    var cartCount = cart.Items.Sum(x => x.Quantity);
+
+                    return Json(new { 
+                        success = true, 
+                        itemTotal = itemTotal, 
+                        formattedItemTotal = itemTotal.ToString("N0") + " ₫", 
+                        cartCount = cartCount
+                    });
                 }
                 else
                 {
                     _context.CartItems.Remove(item);
+                    await _context.SaveChangesAsync();
+                    return Json(new { success = true, shouldReload = true });
                 }
-                await _context.SaveChangesAsync();
             }
 
-            // Calculate totals for response (optional, but good for AJAX)
-            // But since we reload page in JS, simple success is enough.
-            // But let's verify if `item` is null (removed) for Total calculation.
-            
-            // Re-fetch or calculate from memory
-            return Json(new { success = true });
+            return Json(new { success = false, message = "Item not found" });
         }
 
         [HttpPost]
@@ -150,8 +184,8 @@ namespace CuaHangBangDiaNhac.Controllers
                     .ThenInclude(i => i.Product)
                         .ThenInclude(p => p.Images)
                 .Include(c => c.Items)
-                    .ThenInclude(i => i.Product)
-                        .ThenInclude(p => p.Artist)
+                    .ThenInclude(i => i.Product!)
+                        .ThenInclude(p => p.Artist!)
                 .FirstOrDefaultAsync(c => c.UserId == userId);
 
             if (cart == null)

@@ -7,7 +7,7 @@ namespace CuaHangBangDiaNhac.Models
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Vui lòng nhập tên thể loại")]
-        [MaxLength(100)]
+        [MaxLength(100, ErrorMessage = "{0} tối đa {1} ký tự")]
         [Display(Name = "Thể loại chính")]
         public string Name { get; set; } 
 

@@ -13,6 +13,9 @@
     <link rel="stylesheet" href="~/css/user/components.css?v=global_update_22" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/user/home.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/user/product.css?v=global_update_22" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/user/order.css?v=1" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/user/profile.css?v=1" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/user/checkout.css?v=1" asp-append-version="true" />
 </head>
 
 @{
@@ -69,8 +72,12 @@
                             </li>
                             @if (User.IsInRole("Admin") || User.IsInRole("Staff"))
                             {
-                                <li class="nav-item nav-item-admin">
-                                    <a class="nav-link text-warning" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Quản trị</a>
+                                <li class="nav-item ms-lg-2 d-flex align-items-center">
+                                    <a class="nav-link btn btn-warning btn-admin-dashboard rounded-pill px-2 py-1 d-flex align-items-center gap-2 border-0 shadow-sm" 
+                                       asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                                        <i class="bi bi-shield-lock-fill"></i>
+                                        <span class="fw-bold small">Quản trị</span>
+                                    </a>
                                 </li>
                             }
                         </ul>

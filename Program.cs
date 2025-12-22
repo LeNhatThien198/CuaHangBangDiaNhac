@@ -39,10 +39,18 @@ if (args.Length > 0)
 }
 
 // Seed Data on Startup
-using (var scope = app.Services.CreateScope())
+try
 {
-    var services = scope.ServiceProvider;
-    await DataSeeder.SeedDataAsync(services);
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+        await DataSeeder.SeedDataAsync(services);
+    }
+}
+catch (Exception ex)
+{
+    Console.WriteLine("An error occurred while seeding the database: " + ex.Message);
+    // Continue execution to let it run (or fail gracefully with log)
 }
 
 if (app.Environment.IsDevelopment())

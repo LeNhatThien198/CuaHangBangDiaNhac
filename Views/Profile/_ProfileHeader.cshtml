@@ -1,0 +1,78 @@
+@using Microsoft.AspNetCore.Identity
+@using CuaHangBangDiaNhac.Models
+@inject UserManager<User> UserManager
+
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var activeTab = ViewData["ActiveTab"] as string ?? "Overview";
+}
+
+<div class="artist-header-wrapper">
+    <div class="artist-cover">
+        <!-- Optional: Cover Image Logic if needed later -->
+    </div>
+
+    <div class="container-fluid artist-info-container">
+        <div class="artist-avatar-wrapper">
+             @if (string.IsNullOrEmpty(user?.AvatarUrl))
+             {
+                 <img src="/images/default-avatar.png" alt="Avatar" class="artist-avatar">
+             }
+             else
+             {
+                 <img src="@user.AvatarUrl" alt="Avatar" class="artist-avatar">
+             }
+             
+             @if(activeTab == "Overview") 
+             {
+                 <label for="avatarInput" class="artist-avatar-edit" title="Đổi ảnh đại diện">
+                     <i class="bi bi-pencil-fill"></i>
+                 </label>
+             }
+        </div>
+        
+        <div class="artist-details mb-4">
+            <span class="badge rounded-pill text-uppercase text-white border-white bg-white bg-opacity-25">Hồ sơ cá nhân</span>
+            <h1 class="text-white">@(user?.FullName ?? user?.UserName)</h1>
+            <div class="d-flex align-items-center gap-3 mt-3 text-white-50">
+                @if(User.IsInRole("Admin")) 
+                { 
+                    <span class="text-warning fw-bold"><i class="bi bi-shield-fill-check me-2"></i>Quản trị viên</span> 
+                }
+                else if(User.IsInRole("Staff")) 
+                { 
+                    <span class="text-warning fw-bold"><i class="bi bi-person-badge-fill me-2"></i>Nhân viên</span> 
+                }
+                else 
+                { 
+                    <span class="text-white fw-bold"><i class="bi bi-music-note-beamed me-2"></i>Thành viên yêu nhạc</span> 
+                }
+                
+                <span class="text-white-50">•</span>
+                <span class="text-white">@(user?.Email)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="artist-nav">
+        <a asp-controller="Profile" asp-action="Index" class="artist-nav-link @(activeTab == "Overview" ? "active" : "")">Tổng quan</a>
+        @if (!User.IsInRole("Admin"))
+        {
+            <a asp-controller="Order" asp-action="History" class="artist-nav-link @(activeTab == "History" ? "active" : "")">Lịch sử đơn hàng</a>
+        }
+        
+        @if (!User.IsInRole("Admin") && !User.IsInRole("Staff"))
+        {
+           <a asp-controller="Profile" asp-action="Address" class="artist-nav-link @(activeTab == "Address" ? "active" : "")">Sổ địa chỉ</a>
+        }
+        
+        <a asp-controller="Profile" asp-action="ChangePassword" class="artist-nav-link @(activeTab == "Security" ? "active" : "")">Bảo mật</a>
+         
+         <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline ms-auto">
+            <button type="submit" class="btn text-white fw-bold text-uppercase opacity-75 hover-opacity-100" style="background:none; border:none; letter-spacing:1px;">
+                Đăng xuất <i class="bi bi-box-arrow-right ms-2"></i>
+            </button>
+        </form>
+    </div>
+</div>
