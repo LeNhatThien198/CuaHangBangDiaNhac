@@ -45,6 +45,7 @@ namespace CuaHangBangDiaNhac.Data
             builder.Entity<Product>().Property(p => p.Cost).HasPrecision(18, 2); 
             builder.Entity<Order>().Property(o => o.ShippingFee).HasPrecision(18, 2);
             builder.Entity<Order>().Property(o => o.Discount).HasPrecision(18, 2);
+            builder.Entity<Order>().Property(o => o.DepositAmount).HasPrecision(18, 2);
             builder.Entity<OrderItem>().Property(oi => oi.UnitPrice).HasPrecision(18, 2);
 
             builder.Entity<Order>()

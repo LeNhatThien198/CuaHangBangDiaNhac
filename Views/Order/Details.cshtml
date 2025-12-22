@@ -1,0 +1,140 @@
+@model CuaHangBangDiaNhac.Models.Order
+@{
+    ViewData["Title"] = "Chi tiết đơn hàng #" + Model.Id;
+    var canCancel = Model.Status == CuaHangBangDiaNhac.Models.OrderStatus.Pending || Model.Status == CuaHangBangDiaNhac.Models.OrderStatus.Processing;
+    bool isCancelled = Model.Status == CuaHangBangDiaNhac.Models.OrderStatus.Cancelled;
+}
+
+<div class="profile-root">
+    @{ ViewData["ActiveTab"] = "History"; }
+    <partial name="~/Views/Profile/_ProfileHeader.cshtml" />
+    
+    <div class="container-fluid artist-content">
+        <!-- Back Link & Title -->
+        <div class="d-flex align-items-center mb-5">
+             <a asp-action="History" class="text-decoration-none text-muted fw-bold me-3 hover-dark">
+                <i class="bi bi-arrow-left me-1"></i>
+            </a>
+            <div>
+                 <h4 class="fw-bold mb-0">Đơn hàng #@Model.Id</h4>
+                 <p class="text-muted mb-0 small">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+            </div>
+             <div class="ms-auto">
+                 @if(isCancelled)
+                 {
+                     <span class="badge bg-danger rounded-pill px-3 py-2">ĐÃ HỦY</span>
+                 }
+                 else
+                 {
+                     <span class="badge bg-warning text-dark rounded-pill px-3 py-2">@Model.Status</span>
+                 }
+             </div>
+        </div>
+
+        <div class="row g-5">
+            <div class="col-lg-8">
+                <h5 class="fw-bold mb-4">Danh sách sản phẩm</h5>
+                <div class="bg-white shadow-sm rounded-3 p-4 border border-light">
+                     @foreach (var item in Model.Items)
+                    {
+                        <div class="d-flex align-items-center mb-4 last-no-border pb-4 border-bottom border-light">
+                            <img src="@(item.Product?.Images?.FirstOrDefault()?.Url ?? "/images/default-album-art.png")" 
+                                 class="rounded me-4 shadow-sm" width="80" height="80" style="object-fit:cover;" onerror="this.src='/images/default-album-art.png'">
+                            <div class="flex-grow-1">
+                                <h6 class="fw-bold text-dark mb-1">@item.Product?.Name</h6>
+                                <p class="text-muted small mb-0">Nghệ sĩ: @item.Product?.Artist?.Name</p>
+                                @if(item.Product?.IsPreOrder == true)
+                                {
+                                    <span class="badge bg-warning text-dark mt-1" style="font-size: 0.6rem;">Pre-order</span>
+                                }
+                            </div>
+                            <div class="text-end ms-4">
+                                <div class="text-muted small mb-1">x @item.Quantity</div>
+                                <div class="fw-bold text-dark">@((item.UnitPrice * item.Quantity).ToVnd())</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="p-4 rounded-3 border border-light shadow-sm sticky-top bg-white" style="top: 20px;">
+                    <h6 class="text-uppercase text-muted fw-bold small mb-4">Thông tin thanh toán</h6>
+                    
+                    <div class="mb-4 pb-4 border-bottom border-light">
+                         <div class="d-flex justify-content-between mb-2">
+                             <span class="text-muted">Tạm tính</span>
+                             <span class="text-dark fw-bold">@Model.Items.Sum(i => i.UnitPrice * i.Quantity).ToVnd()</span>
+                         </div>
+                         <div class="d-flex justify-content-between mb-2">
+                             <span class="text-muted">Vận chuyển</span>
+                             <span class="text-dark fw-bold">@Model.ShippingFee.ToVnd()</span>
+                         </div>
+                         <div class="d-flex justify-content-between mb-2">
+                             <span class="text-muted">Giảm giá</span>
+                             <span class="text-danger fw-bold">- @Model.Discount.ToVnd()</span>
+                         </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <span class="fw-bold text-dark text-uppercase">Tổng cộng</span>
+                        <span class="fw-bold fs-4 text-warning">@Model.Total.ToVnd()</span>
+                    </div>
+                    
+                     <div class="mb-4">
+                         <h6 class="text-uppercase text-muted fw-bold small mb-2">Giao tới</h6>
+                         @if(Model.ShippingAddress != null)
+                         {
+                             <p class="text-dark mb-0 fw-bold">@Model.ShippingAddress.ReceiverName</p>
+                             <p class="text-muted mb-0">@Model.ShippingAddress.PhoneNumber</p>
+                             <p class="text-muted small mt-1">
+                                 @{
+                                     var addrParts = new List<string>();
+                                     if (!string.IsNullOrWhiteSpace(Model.ShippingAddress.Province)) addrParts.Add(Model.ShippingAddress.Province);
+                                     if (!string.IsNullOrWhiteSpace(Model.ShippingAddress.Line2)) addrParts.Add(Model.ShippingAddress.Line2);
+                                     if (!string.IsNullOrWhiteSpace(Model.ShippingAddress.Line1)) addrParts.Add(Model.ShippingAddress.Line1);
+                                 }
+                                 @string.Join(", ", addrParts)
+                             </p>
+                         }
+                         else
+                         {
+                             <p class="text-muted fst-italic">Thông tin địa chỉ đã bị xóa hoặc không tồn tại.</p>
+                         }
+                    </div>
+
+                    @if (canCancel)
+                    {
+                        <form asp-action="Cancel" method="post" id="cancelForm">
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <button type="button" onclick="confirmCancel()" class="btn btn-outline-danger w-100 fw-bold py-2 rounded-pill">
+                                HỦY ĐƠN HÀNG
+                            </button>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function confirmCancel() {
+             Swal.fire({
+                title: "Xác nhận hủy?",
+                text: "Bạn có chắc chắn muốn hủy đơn hàng này không?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#dc3545",
+                cancelButtonColor: "#333",
+                confirmButtonText: "Đồng ý",
+                cancelButtonText: "Quay lại"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('cancelForm').submit();
+                }
+            });
+        }
+    </script>
+}

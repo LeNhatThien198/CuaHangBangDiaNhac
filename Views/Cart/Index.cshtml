@@ -18,9 +18,62 @@
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="text-uppercase fw-extra-bold mb-0"><i class="bi bi-cart3 me-2"></i>Giỏ hàng (@Model.TotalItems sản phẩm)</h2>
-        <a asp-controller="Product" asp-action="Index" class="text-decoration-none fw-bold text-dark">
-            <i class="bi bi-arrow-left me-1"></i>Tiếp tục mua sắm
-        </a>
+        <div class="d-flex align-items-center gap-3">
+            <a asp-controller="Product" asp-action="Index" class="text-decoration-none fw-bold text-dark">
+                <i class="bi bi-arrow-left me-1"></i>Tiếp tục mua sắm
+            </a>
+            <span class="text-muted">|</span>
+            <a asp-controller="Order" asp-action="History" class="text-decoration-none text-muted fw-bold">
+                <i class="bi bi-clock-history me-1"></i>Lịch sử đơn hàng
+            </a>
+        </div>
+    </div>
+
+    <!-- Search & Sort Toolbar -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body py-3">
+            <div class="row g-2 align-items-center">
+                <div class="col-md-9">
+                     <form asp-action="Index" method="get">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0">
+                                <i class="bi bi-search text-muted"></i>
+                            </span>
+                            <input type="text" name="searchString" value="@ViewData["CurrentSearch"]" class="form-control border-start-0" placeholder="Tìm kiếm trong giỏ hàng..." style="box-shadow: none;">
+                            <button class="btn btn-dark fw-bold px-4" type="submit">Tìm kiếm</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-md-3">
+                    @{
+                        string currentSort = ViewData["CurrentSort"] as string;
+                        var sortLabels = new Dictionary<string, string>
+                        {
+                            { "name_desc", "Tên (Z-A)" },
+                            { "price_asc", "Giá tăng dần" },
+                            { "price_desc", "Giá giảm dần" }
+                        };
+                        var currentSortLabel = !string.IsNullOrEmpty(currentSort) && sortLabels.ContainsKey(currentSort) ? sortLabels[currentSort] : "Mặc định";
+                    }
+                     <div class="dropdown w-100">
+                        <button class="btn btn-outline-secondary dropdown-toggle w-100 d-flex justify-content-between align-items-center fw-bold bg-white text-dark" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span><i class="bi bi-filter me-2"></i>@currentSortLabel</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 w-100">
+                            <li><h6 class="dropdown-header text-uppercase small fw-bold">Tên sản phẩm</h6></li>
+                            <li><a class="dropdown-item @(string.IsNullOrEmpty(currentSort) ? "active" : "")" asp-action="Index" asp-route-sortOrder="" asp-route-searchString="@ViewData["CurrentSearch"]"><i class="bi bi-sort-alpha-down me-2"></i>Mặc định (A-Z)</a></li>
+                            <li><a class="dropdown-item @(currentSort == "name_desc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="name_desc" asp-route-searchString="@ViewData["CurrentSearch"]"><i class="bi bi-sort-alpha-down-alt me-2"></i>Tên (Z-A)</a></li>
+                            
+                            <li><hr class="dropdown-divider"></li>
+                            
+                            <li><h6 class="dropdown-header text-uppercase small fw-bold">Giá cả</h6></li>
+                            <li><a class="dropdown-item @(currentSort == "price_asc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="price_asc" asp-route-searchString="@ViewData["CurrentSearch"]"><i class="bi bi-sort-numeric-down me-2"></i>Giá tăng dần</a></li>
+                            <li><a class="dropdown-item @(currentSort == "price_desc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="price_desc" asp-route-searchString="@ViewData["CurrentSearch"]"><i class="bi bi-sort-numeric-down-alt me-2"></i>Giá giảm dần</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     @if (Model.Items.Any())
@@ -186,9 +239,9 @@
                                  <div class="text-secondary fw-bold small">Tổng thanh toán (<span id="total-qty">0</span> sản phẩm):</div>
                                  <div class="fs-3 fw-extra-bold text-success" id="sticky-total">0 ₫</div>
                              </div>
-                             <a asp-controller="Checkout" asp-action="Index" class="btn btn-dark px-5 py-2 fw-bold text-uppercase btn-checkout card-shadow-hover">
+                             <button type="button" id="btn-process-checkout" class="btn btn-danger px-5 py-2 fw-bold text-uppercase btn-checkout card-shadow-hover">
                                 Mua Hàng
-                             </a>
+                             </button>
                         </div>
                     </div>
                 </div>

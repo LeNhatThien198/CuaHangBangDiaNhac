@@ -31,7 +31,7 @@
                                     </a>
                                     <div class="carousel-overlay">
                                         <div class="carousel-caption-content">
-                                            <h2 class="carousel-title">@item.Title</h2>
+                                            <h2 class="carousel-title text-white">@item.Title</h2>
                                             <p class="carousel-subtitle">@item.Subtitle</p>
                                             
                                             @if (item.ProductId.HasValue)
@@ -177,7 +177,7 @@
                                     </a>
                                     
                                     <div class="card-footer-group p-2 pt-0 bg-white">
-                                         <div class="card-price pb-2">
+                                         <div class="card-price pb-2 d-flex flex-column align-items-center">
                                              @if (product.PromotionPrice.HasValue)
                                             {
                                                 <div class="fw-bold text-danger fs-6 text-nowrap">@product.PromotionPrice.Value.ToVnd()</div>
@@ -224,10 +224,48 @@
         /* Force background on body for Home Page */
         body {
             /* Fallback color */
-            background-color: #f8f9fa !important;
-            /* New Image: Music/Vinyl Light Aesthetic */
-            background: url('https://images.unsplash.com/photo-1494232410401-ad00d5433cfa?q=80&w=2000&auto=format&fit=crop') no-repeat center center fixed !important;
+            background-color: #333333 !important; /* Medium Grey fallback */
+            /* New Image: Medium Brightness Music Store */
+            background: url('/images/bg-home-medium.png') no-repeat center center fixed !important;
             background-size: cover !important;
+        }
+
+        /* White borders via Split Strategy */
+        .product-card {
+            border: none !important; /* Remove container border */
+            background: transparent !important;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Modify shadow if needed, or keep */
+            overflow: visible !important;
+        }
+
+        .card-img-wrapper {
+            border: 1px solid #fff !important;
+            border-bottom: 1px solid #000 !important; /* Black separator */
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            margin: 0;
+            width: 100%;
+            z-index: 2; /* Sit on top */
+        }
+
+        /* Target the body to connect the borders */
+        .card-body {
+            border-left: 1px solid #fff !important;
+            border-right: 1px solid #fff !important;
+            background: #fff; /* Ensure white bg */
+            /* No top/bottom border to merge */
+        }
+
+        .card-footer-group,
+        .row-cols-2 .card-footer-group,
+        .row-cols-md-4 .card-footer-group {
+            border: 1px solid #fff !important;
+            border-top: 1px solid #000 !important; /* Footer separator (optional: make black or white?) Keeping consistent */
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            margin: 0;
+            width: 100%;
+            padding: 1rem;
         }
     </style>
 }

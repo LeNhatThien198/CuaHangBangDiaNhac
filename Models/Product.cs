@@ -8,20 +8,21 @@ namespace CuaHangBangDiaNhac.Models
     {
         public int Id { get; set; }
 
-        [Required(ErrorMessage = "Tên sản phẩm không được để trống")]
-        [MaxLength(200)]
+        [Required(ErrorMessage = "Vui lòng nhập tên sản phẩm")]
+        [MaxLength(200, ErrorMessage = "{0} tối đa {1} ký tự")]
         [Display(Name = "Tên sản phẩm")]
         public string Name { get; set; }
 
-        [MaxLength(2000)]
+        [MaxLength(2000, ErrorMessage = "{0} tối đa {1} ký tự")]
         [Display(Name = "Mô tả")]
         public string? Description { get; set; }
 
         [Display(Name = "Danh sách bài hát")]
         public string? Tracklist { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Vui lòng nhập {0}")]
         [Precision(18, 2)]
+        [Range(0, double.MaxValue, ErrorMessage = "{0} phải lớn hơn hoặc bằng {1}")]
         [Display(Name = "Giá bán")]
         public decimal Price { get; set; }
 
@@ -36,7 +37,8 @@ namespace CuaHangBangDiaNhac.Models
         [Display(Name = "Hiển thị")]
         public bool IsPublished { get; set; } = true;
 
-        [Required]
+        [Required(ErrorMessage = "Vui lòng nhập {0}")]
+        [Range(0, int.MaxValue, ErrorMessage = "{0} phải lớn hơn hoặc bằng {1}")]
         [Display(Name = "Tồn kho")]
         public int Quantity { get; set; }
         public bool IsUsed { get; set; } = false;
@@ -48,14 +50,14 @@ namespace CuaHangBangDiaNhac.Models
         public DateTime? ReleaseDate { get; set; }
 
         [Display(Name = "Nước sản xuất")]
-        [MaxLength(50)]
+        [MaxLength(50, ErrorMessage = "{0} tối đa {1} ký tự")]
         public string? Country { get; set; }
 
         [Display(Name = "Năm phát hành")]
         public int? ReleaseYear { get; set; }
 
         [Display(Name = "Tình trạng đĩa")]
-        [MaxLength(50)]
+        [MaxLength(50, ErrorMessage = "{0} tối đa {1} ký tự")]
         public string? Condition { get; set; }
 
         [Display(Name = "Ngày nhập")]

@@ -1,14 +1,39 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using CuaHangBangDiaNhac.Models
+@using CuaHangBangDiaNhac.Data
+@using Microsoft.EntityFrameworkCore
 @inject SignInManager<User> SignInManager
 @inject UserManager<User> UserManager
+@inject ApplicationDbContext _context
 
-@if (SignInManager.IsSignedIn(User))
+@if (SignInManager.IsSignedIn(User)) 
 {
     var user = await UserManager.GetUserAsync(User);
-    var displayName = user?.FullName ?? User.Identity?.Name ?? "Khách hàng";
     
-    <li class="nav-item me-5">
+    // Default values if user retrieval fails
+    var displayName = "Khách hàng";
+    string roleLabel = "Khách hàng";
+    string roleColor = "text-primary";
+    
+    // If user is null (e.g. deleted but still has cookie), force logout or handle gracefully
+    if (user != null) 
+    {
+        displayName = user.UserName; // UserName is safe to assume if user is not null here
+        var roles = await UserManager.GetRolesAsync(user);
+        
+        if (roles.Contains("Admin"))
+        {
+            roleLabel = "ADMIN";
+            roleColor = "text-danger";
+        }
+        else if (roles.Contains("Staff"))
+        {
+            roleLabel = "STAFF";
+            roleColor = "text-warning";
+        }
+    }
+    
+    <li class="nav-item me-0">
         <form class="d-flex" asp-controller="Product" asp-action="Index" method="get">
             <div class="input-group input-group-sm">
                 <input class="form-control bg-dark text-white border-secondary" type="search" placeholder="Tìm kiếm sản phẩm..." name="search" style="width: 250px;">
@@ -17,22 +42,53 @@
         </form>
     </li>
 
-    <li class="nav-item">
-        <a class="nav-link" asp-controller="Cart" asp-action="Index" title="Giỏ hàng">
-            <span class="d-inline-block position-relative">
-                <i class="bi bi-cart3 fs-5"></i>
-                <span class="position-absolute badge rounded-pill badge-cart badge-cart-tight">0</span>
-            </span>
-        </a>
-    </li>
 
+    @if ((User.IsInRole("Admin") || User.IsInRole("Staff")) && ViewContext.RouteData.Values["area"]?.ToString() != "Admin")
+    {
+        var pendingCount = await _context.Orders.CountAsync(o => o.Status == OrderStatus.Pending);
+        <li class="nav-item me-2">
+            <a class="nav-link" asp-area="Admin" asp-controller="Order" asp-action="Index" title="Quản lý đơn hàng">
+                <span class="d-inline-block position-relative">
+                    <i class="bi bi-clipboard-data fs-5 text-warning"></i>
+                    @if (pendingCount > 0)
+                    {
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-2 border-dark" style="font-size: 0.65rem;">
+                            @pendingCount
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-secondary border border-2 border-dark" style="font-size: 0.65rem;">
+                            0
+                        </span>
+                    }
+                </span>
+            </a>
+        </li>
+    }
+
+    @if (!User.IsInRole("Admin") && !User.IsInRole("Staff"))
+    {
+        <li class="nav-item">
+            <a class="nav-link" asp-controller="Cart" asp-action="Index" title="Giỏ hàng">
+                <span class="d-inline-block position-relative">
+                    <i class="bi bi-cart3 fs-5"></i>
+                    <span class="position-absolute badge rounded-pill badge-cart badge-cart-tight">0</span>
+                </span>
+            </a>
+        </li>
+    }
+    
     <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle text-white fw-bold pe-0" id="navbarDropdownUser" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Xin chào, <i class="fas fa-user-circle me-1"></i> @displayName
+        <a class="nav-link dropdown-toggle text-white fw-bold pe-0" style="text-transform: none !important;" id="navbarDropdownUser" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Xin chào, <img src="@(user?.AvatarUrl ?? "/images/default-user.png")" alt="Avatar" class="rounded-circle me-1" style="width: 25px; height: 25px; object-fit: cover; border: 1px solid #fff;"> <span class="@roleColor">@roleLabel:</span> @displayName
         </a>
         <ul class="dropdown-menu dropdown-menu-end bg-dark border-secondary" aria-labelledby="navbarDropdownUser">
-            <li><a class="dropdown-item text-white-50 hover-light" href="#">Hồ sơ cá nhân</a></li>
-            <li><a class="dropdown-item text-white-50 hover-light" href="#">Đơn hàng của tôi</a></li>
+            <li><a class="dropdown-item text-white-50 hover-light" asp-area="" asp-controller="Profile" asp-action="Index">Hồ sơ cá nhân</a></li>
+            @if (!User.IsInRole("Admin"))
+            {
+                <li><a class="dropdown-item text-white-50 hover-light" asp-controller="Order" asp-action="History">Lịch sử đơn hàng</a></li>
+            }
             
             @if (User.IsInRole("Admin") || User.IsInRole("Staff"))
             {

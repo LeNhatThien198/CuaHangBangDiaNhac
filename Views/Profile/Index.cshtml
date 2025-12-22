@@ -1,0 +1,157 @@
+@model CuaHangBangDiaNhac.ViewModels.ProfileViewModel
+@{
+    ViewData["Title"] = "Hồ sơ của tôi";
+}
+
+    <div class="profile-root">
+    @{ ViewData["ActiveTab"] = "Overview"; }
+    <partial name="_ProfileHeader" />
+
+    <form asp-action="Index" method="post" enctype="multipart/form-data" id="profileForm">
+        <!-- Hidden File Input for Avatar (Triggered by Partial's label via ID match if possible, or we need to check ID) 
+             The partial has <label for="avatarInput">. We need the input here.
+        -->
+        <input type="hidden" asp-for="Id" />
+        <input type="file" name="avatarFile" id="avatarInput" class="d-none" accept="image/*" onchange="previewAvatar(this)">
+        
+        <!-- 4. Content Area (Minimal Forms) -->
+        <div class="container-fluid artist-content">
+             <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4" style="position: relative; z-index: 50;">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a asp-controller="Home" asp-action="Index" class="text-decoration-none">
+                            <i class="bi bi-house-door-fill me-1"></i>Trang chủ
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">Hồ sơ cá nhân</li>
+                </ol>
+            </nav>
+             <div class="row">
+                 <div class="col-lg-8">
+                     @* Removed Bootstrap Alert as per request for SweetAlert only *@
+                     <div asp-validation-summary="ModelOnly" class="text-danger mb-4"></div>
+
+                     <div class="row g-5 mb-5">
+                         <div class="col-md-6">
+                             <div class="form-minimal">
+                                 <label asp-for="Username">Tên đăng nhập</label>
+                                 <input asp-for="Username" class="form-minimal-control" />
+                                 <span asp-validation-for="Username" class="text-danger small mt-1 d-block"></span>
+                             </div>
+                         </div>
+                         <div class="col-md-6">
+                             <div class="form-minimal">
+                                 @if (Model.IsAdminOrStaff)
+                                 {
+                                     <label asp-for="Email">Email</label>
+                                     <input asp-for="Email" class="form-minimal-control" />
+                                     <span asp-validation-for="Email" class="text-danger small mt-1 d-block"></span>
+                                     <small class="text-muted fst-italic">Admin/Staff có thể đổi email.</small>
+                                 }
+                                 else
+                                 {
+                                     <label asp-for="Email">Email (Không thể thay đổi)</label>
+                                     <input asp-for="Email" class="form-minimal-control" readonly />
+                                 }
+                             </div>
+                         </div>
+                         <div class="col-md-6">
+                             <div class="form-minimal">
+                                 <label asp-for="FullName">Họ và tên hiển thị</label>
+                                 <input asp-for="FullName" class="form-minimal-control" />
+                                 <span asp-validation-for="FullName" class="text-danger small mt-1 d-block"></span>
+                             </div>
+                         </div>
+                         <div class="col-md-6">
+                             <div class="form-minimal">
+                                 <label asp-for="PhoneNumber">Số điện thoại liên hệ</label>
+                                 <input asp-for="PhoneNumber" class="form-minimal-control" />
+                                 <span asp-validation-for="PhoneNumber" class="text-danger small mt-1 d-block"></span>
+                             </div>
+                         </div>
+                     </div>
+
+                     @if (Model.IsAdminOrStaff)
+                     {
+                         <div class="artist-admin-zone">
+                             <h4 class="fw-bold mb-4">Địa chỉ</h4>
+                             <div class="row g-4">
+                                 <div class="col-12">
+                                     <div class="form-minimal">
+                                         <label asp-for="AddressLine">Địa chỉ (Số nhà, đường)</label>
+                                         <input asp-for="AddressLine" class="form-minimal-control" />
+                                     </div>
+                                 </div>
+                                 <div class="col-md-6">
+                                     <div class="form-minimal">
+                                         <label asp-for="Ward">Phường/Xã</label>
+                                         <input asp-for="Ward" class="form-minimal-control" />
+                                     </div>
+                                 </div>
+                                 <div class="col-md-6">
+                                     <div class="form-minimal">
+                                          <label asp-for="Province">Tỉnh/Thành phố</label>
+                                         <input asp-for="Province" class="form-minimal-control" />
+                                     </div>
+                                 </div>
+                             </div>
+                         </div>
+                     }
+
+                     <div class="mt-5">
+                         <button type="submit" class="btn btn-dark rounded-pill px-5 py-2 fw-bold">
+                             LƯU THAY ĐỔI
+                         </button>
+                     </div>
+                 </div>
+                 
+                 <!-- Optional Right Column (Stats or other info) -->
+                 <div class="col-lg-4 d-none d-lg-block ps-5">
+                     <h6 class="text-uppercase text-muted mb-4">Thống kê hoạt động</h6>
+                      <div class="d-flex align-items-center">
+                         <span class="text-muted fw-medium me-2">Thành viên từ năm</span>
+                         <h2 class="mb-0 fw-bold">@(Model.CreatedAt.Year < 2000 ? DateTime.Now.Year : Model.CreatedAt.Year)</h2>
+                     </div>
+                 </div>
+             </div>
+        </div>
+    </form>
+</div>
+
+<!-- Separate Logout Form -->
+<form asp-controller="Account" asp-action="Logout" method="post" id="logoutForm" class="d-none"></form>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function previewAvatar(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('avatarPreview').src = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        
+        // SweetAlert for Success Message
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <text>
+            Swal.fire({
+                title: 'Thành công!',
+                text: '@Html.Raw(TempData["SuccessMessage"])',
+                icon: 'success',
+                confirmButtonColor: '#ffc107',
+                confirmButtonText: 'OK',
+                customClass: {
+                    title: 'fw-bold',
+                    popup: 'rounded-4'
+                }
+            });
+            </text>
+        }
+    </script>
+}

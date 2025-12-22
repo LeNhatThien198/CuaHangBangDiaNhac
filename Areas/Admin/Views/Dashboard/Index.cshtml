@@ -1,44 +1,219 @@
-﻿@{
+﻿@using CuaHangBangDiaNhac.Extensions
+@model CuaHangBangDiaNhac.ViewModels.Admin.DashboardViewModel
+@{
     ViewData["Title"] = "Tổng quan";
 }
 
-<div class="row">
+<div class="row mb-4">
     <div class="col-12">
-        <h2 class="fw-bold mb-4">Dashboard</h2>
+        <h2 class="fw-bold mb-0">Dashboard</h2>
+        <p class="text-muted">Tổng quan tình hình kinh doanh của cửa hàng.</p>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row g-4 mb-5">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h6 class="card-title text-white-50 text-uppercase small fw-bold">Đơn hàng mới</h6>
+                        <h2 class="display-6 fw-bold mb-0">@Model.NewOrdersCount</h2>
+                    </div>
+                    <i class="bi bi-bag-plus fs-1 opacity-25"></i>
+                </div>
+                <small class="text-white-50 mt-3 d-block">Đang chờ xử lý</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #198754 0%, #146c43 100%);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h6 class="card-title text-white-50 text-uppercase small fw-bold">Doanh thu ngày</h6>
+                        <h2 class="display-6 fw-bold mb-0">@Model.DailyRevenue.ToVnd()</h2>
+                    </div>
+                    <i class="bi bi-currency-dollar fs-1 opacity-25"></i>
+                </div>
+                 <small class="text-white-50 mt-3 d-block">Doanh thu hôm nay</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100 bg-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h6 class="card-title text-muted text-uppercase small fw-bold">Sản phẩm</h6>
+                        <h2 class="display-6 fw-bold mb-0 text-dark">@Model.TotalProducts</h2>
+                    </div>
+                    <i class="bi bi-disc fs-1 text-warning opacity-50"></i>
+                </div>
+                 <small class="text-muted mt-3 d-block">Tổng số đĩa nhạc</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100 bg-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h6 class="card-title text-muted text-uppercase small fw-bold">Khách hàng</h6>
+                        <h2 class="display-6 fw-bold mb-0 text-dark">@Model.TotalUsers</h2>
+                    </div>
+                    <i class="bi bi-people fs-1 text-info opacity-50"></i>
+                </div>
+                 <small class="text-muted mt-3 d-block">Người dùng đăng ký</small>
+            </div>
+        </div>
     </div>
 </div>
 
 <div class="row g-4">
-    <div class="col-md-3">
-        <div class="card bg-primary text-white border-0 shadow h-100">
+    <!-- Chart Section -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-transparent border-0 py-3">
+                <h5 class="fw-bold mb-0"><i class="bi bi-graph-up-arrow me-2 text-primary"></i>Doanh thu 7 ngày qua</h5>
+            </div>
             <div class="card-body">
-                <h5 class="card-title">Đơn hàng mới</h5>
-                <p class="display-6 fw-bold">12</p>
+                <canvas id="revenueChart" style="max-height: 400px;"></canvas>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card bg-success text-white border-0 shadow h-100">
-            <div class="card-body">
-                <h5 class="card-title">Doanh thu ngày</h5>
-                <p class="display-6 fw-bold">5.2tr</p>
+
+    <!-- Recent Orders Section -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-transparent border-0 py-3 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0">Đơn hàng mới nhất</h5>
+                <a asp-controller="Order" asp-action="Index" class="text-decoration-none small fw-bold">Xem tất cả</a>
             </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card bg-warning text-dark border-0 shadow h-100">
-            <div class="card-body">
-                <h5 class="card-title">Sản phẩm</h5>
-                <p class="display-6 fw-bold">150</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card bg-danger text-white border-0 shadow h-100">
-            <div class="card-body">
-                <h5 class="card-title">Khách hàng</h5>
-                <p class="display-6 fw-bold">89</p>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    @foreach (var order in Model.RecentOrders)
+                    {
+                        var statusColor = "bg-secondary";
+                        var statusLabel = order.Status.ToString();
+
+                        switch (order.Status)
+                        {
+                            case CuaHangBangDiaNhac.Models.OrderStatus.Pending: 
+                                statusColor = "bg-warning text-dark"; 
+                                statusLabel = "Chờ xử lý";
+                                break;
+                            case CuaHangBangDiaNhac.Models.OrderStatus.Processing: 
+                                statusColor = "bg-info text-dark"; 
+                                statusLabel = "Đang xử lý";
+                                break;
+                            case CuaHangBangDiaNhac.Models.OrderStatus.Shipped: 
+                                statusColor = "bg-primary"; 
+                                statusLabel = "Đang vận chuyển";
+                                break;
+                            case CuaHangBangDiaNhac.Models.OrderStatus.Delivered: 
+                                statusColor = "bg-success"; 
+                                statusLabel = "Đã giao hàng";
+                                break;
+                            case CuaHangBangDiaNhac.Models.OrderStatus.Cancelled: 
+                                statusColor = "bg-danger"; 
+                                statusLabel = "Đã hủy";
+                                break;
+                            case CuaHangBangDiaNhac.Models.OrderStatus.Returned: 
+                                statusColor = "bg-secondary"; 
+                                statusLabel = "Hoàn/Trả";
+                                break;
+                        }
+
+                        <a href="@Url.Action("Details", "Order", new { Area = "Admin", id = order.Id })" class="list-group-item list-group-item-action border-0 border-bottom py-3">
+                            <div class="d-flex w-100 justify-content-between mb-1">
+                                <strong class="text-dark">#@order.Id</strong>
+                                <span class="badge @statusColor rounded-pill" style="font-size: 0.7rem;">@statusLabel</span>
+                            </div>
+                            <div class="d-flex w-100 justify-content-between align-items-center">
+                                <small class="text-muted"><i class="bi bi-person me-1"></i>@(order.User?.FullName ?? "Guest")</small>
+                                <span class="fw-bold text-success small">@order.Total.ToVnd()</span>
+                            </div>
+                            <small class="text-muted d-block mt-1">@order.CreatedAt.ToString("HH:mm dd/MM")</small>
+                        </a>
+                    }
+                    @if (!Model.RecentOrders.Any())
+                    {
+                        <div class="text-center py-4 text-muted">
+                            <small>Chưa có đơn hàng nào.</small>
+                        </div>
+                    }
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        const revenueChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.ChartLabels)),
+                datasets: [{
+                    label: 'Doanh thu (VNĐ)',
+                    data: @Html.Raw(Json.Serialize(Model.ChartData)),
+                    backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                    borderColor: '#0d6efd',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    fill: true,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#0d6efd',
+                    pointHoverBackgroundColor: '#0d6efd',
+                    pointHoverBorderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(context.parsed.y);
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value, index, values) {
+                                return new Intl.NumberFormat('vi-VN', { notation: "compact", compactDisplay: "short" }).format(value) + '₫';
+                            }
+                        },
+                        grid: {
+                            borderDash: [2, 4],
+                            color: '#f0f0f0'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}

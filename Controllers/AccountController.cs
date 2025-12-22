@@ -196,10 +196,10 @@ namespace CuaHangBangDiaNhac.Controllers
         public async Task<IActionResult> VerifyUsername(string username, string? id)
         {
             var user = await _userManager.FindByNameAsync(username);
-
             if (user != null)
             {
-                if (!string.IsNullOrEmpty(id) && user.Id == id)
+                // Strict check: if ID matches, it's the same user, allow it.
+                if (!string.IsNullOrEmpty(id) && string.Equals(user.Id, id, StringComparison.OrdinalIgnoreCase))
                 {
                     return Json(true);
                 }
@@ -214,10 +214,9 @@ namespace CuaHangBangDiaNhac.Controllers
         public async Task<IActionResult> VerifyEmail(string email, string? id)
         {
             var user = await _userManager.FindByEmailAsync(email);
-
             if (user != null)
             {
-                if (!string.IsNullOrEmpty(id) && user.Id == id)
+                if (!string.IsNullOrEmpty(id) && string.Equals(user.Id, id, StringComparison.OrdinalIgnoreCase))
                 {
                     return Json(true);
                 }
