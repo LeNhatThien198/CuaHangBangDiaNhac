@@ -16,18 +16,18 @@
         <div class="artist-avatar-wrapper">
              @if (string.IsNullOrEmpty(user?.AvatarUrl))
              {
-                 <img src="/images/default-avatar.png" alt="Avatar" class="artist-avatar">
+                 <img id="profileAvatar" src="/images/default-avatar.png" alt="Avatar" class="artist-avatar">
              }
              else
              {
-                 <img src="@user.AvatarUrl" alt="Avatar" class="artist-avatar">
+                 <img id="profileAvatar" src="@user.AvatarUrl" alt="Avatar" class="artist-avatar">
              }
              
              @if(activeTab == "Overview") 
              {
-                 <label for="avatarInput" class="artist-avatar-edit" title="Đổi ảnh đại diện">
+                 <span id="avatarEditBtn" class="artist-avatar-edit" title="Đổi ảnh đại diện">
                      <i class="bi bi-pencil-fill"></i>
-                 </label>
+                 </span>
              }
         </div>
         
@@ -54,7 +54,6 @@
         </div>
     </div>
 
-    <!-- Navigation Tabs -->
     <div class="artist-nav">
         <a asp-controller="Profile" asp-action="Index" class="artist-nav-link @(activeTab == "Overview" ? "active" : "")">Tổng quan</a>
         @if (!User.IsInRole("Admin"))
@@ -76,3 +75,73 @@
         </form>
     </div>
 </div>
+
+<div id="avatarOverlay" class="image-viewer-overlay" style="display:none;">
+    <div id="avatarCloseBtn" class="viewer-close-btn">&times;</div>
+    <div class="viewer-content-wrapper">
+        <img id="avatarViewerImg" class="viewer-img" src="@((string.IsNullOrEmpty(user?.AvatarUrl) ? "/images/default-avatar.png" : user.AvatarUrl))" alt="Avatar">
+        <div class="mt-3 d-flex justify-content-center gap-2">
+            <button type="button" class="btn btn-warning fw-bold" id="btnChangeAvatar"><i class="bi bi-upload me-2"></i>Thay đổi ảnh đại diện</button>
+        </div>
+        <input type="file" id="avatarUploadInput" class="d-none" accept="image/*" />
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const avatarImgs = document.querySelectorAll('.artist-avatar');
+    const overlay = document.getElementById('avatarOverlay');
+    const viewerImg = document.getElementById('avatarViewerImg');
+    const closeBtn = document.getElementById('avatarCloseBtn');
+    const changeBtn = document.getElementById('btnChangeAvatar');
+    const uploadInput = document.getElementById('avatarUploadInput');
+    const editBtn = document.getElementById('avatarEditBtn');
+    const mainAvatar = document.getElementById('profileAvatar');
+
+    const openOverlay = (src) => {
+        viewerImg.src = src;
+        overlay.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    };
+    const closeOverlay = () => {
+        overlay.style.display = 'none';
+        document.body.style.overflow = '';
+    };
+
+    avatarImgs.forEach(img => {
+        img.style.cursor = 'pointer';
+        img.addEventListener('click', () => openOverlay(img.src));
+    });
+
+    editBtn?.addEventListener('click', () => openOverlay(mainAvatar?.src || viewerImg.src));
+    closeBtn?.addEventListener('click', closeOverlay);
+    overlay?.addEventListener('click', (e) => {
+        if (e.target === overlay || e.target.classList.contains('viewer-content-wrapper')) closeOverlay();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && overlay.style.display === 'flex') closeOverlay();
+    });
+    changeBtn?.addEventListener('click', () => uploadInput?.click());
+
+    uploadInput?.addEventListener('change', () => {
+        if (!uploadInput.files || !uploadInput.files[0]) return;
+        const formData = new FormData();
+        formData.append('avatarFile', uploadInput.files[0]);
+
+        fetch('/Profile/UploadAvatar', { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const newUrl = data.url + '?t=' + Date.now();
+                    viewerImg.src = newUrl;
+                    avatarImgs.forEach(img => img.src = newUrl);
+                    closeOverlay();
+                    Swal.fire('Thành công', 'Ảnh đại diện đã được cập nhật!', 'success');
+                } else {
+                    Swal.fire('Lỗi', data.message || 'Không thể cập nhật ảnh.', 'error');
+                }
+            })
+            .catch(() => Swal.fire('Lỗi', 'Không thể tải lên ảnh.', 'error'));
+    });
+});
+</script>

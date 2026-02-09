@@ -284,14 +284,15 @@ namespace CuaHangBangDiaNhac.Areas.Admin.Controllers
 
             if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
 
+            int maxIndex = 0;
             string fileName = "";
+            
             if (type == "cover")
             {
                 fileName = "c" + Path.GetExtension(file.FileName);
             }
             else
             {
-                int maxIndex = 0;
                 var existingFiles = Directory.GetFiles(folderPath, "g*.*");
                 foreach (var f in existingFiles)
                 {
@@ -305,10 +306,26 @@ namespace CuaHangBangDiaNhac.Areas.Admin.Controllers
             }
 
             string filePath = Path.Combine(folderPath, fileName);
-            // Nếu là cover, xóa file cũ trùng tên trước khi ghi mới để tránh lỗi lock hoặc cache
-            if (System.IO.File.Exists(filePath)) System.IO.File.Delete(filePath);
 
-            using (var stream = new FileStream(filePath, FileMode.Create))
+            // FIX: Ensure file is not locked before delete/overwrite
+            if (System.IO.File.Exists(filePath))
+            {
+                try
+                {
+                    System.IO.File.Delete(filePath);
+                }
+                catch (IOException)
+                {
+                    // File locked - append timestamp to create unique name
+                    string timestamp = DateTime.UtcNow.Ticks.ToString();
+                    fileName = type == "cover" 
+                        ? $"c_{timestamp}{Path.GetExtension(file.FileName)}"
+                        : $"g{maxIndex + 1}_{timestamp}{Path.GetExtension(file.FileName)}";
+                    filePath = Path.Combine(folderPath, fileName);
+                }
+            }
+
+            using (var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
             {
                 await file.CopyToAsync(stream);
             }
@@ -320,17 +337,40 @@ namespace CuaHangBangDiaNhac.Areas.Admin.Controllers
         {
             if (string.IsNullOrEmpty(relativePath)) return;
             string absolutePath = Path.Combine(_webHostEnvironment.WebRootPath, relativePath.TrimStart('/'));
-            if (System.IO.File.Exists(absolutePath)) System.IO.File.Delete(absolutePath);
+
+            if (System.IO.File.Exists(absolutePath))
+            {
+                try
+                {
+                    System.IO.File.Delete(absolutePath);
+                }
+                catch (IOException ex)
+                {
+                    // Log error but don't crash - file may still be locked
+                    System.Diagnostics.Debug.WriteLine($"Failed to delete {absolutePath}: {ex.Message}");
+                }
+            }
         }
 
         private string GetSafeFileName(string input)
         {
             if (string.IsNullOrEmpty(input)) return "unknown";
+
+            // Remove Vietnamese diacritics
             string str = input.Normalize(NormalizationForm.FormD);
-            var chars = str.Where(c => System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c) != System.Globalization.UnicodeCategory.NonSpacingMark).ToArray();
+            var chars = str.Where(c => System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c) 
+                != System.Globalization.UnicodeCategory.NonSpacingMark).ToArray();
             str = new string(chars).Normalize(NormalizationForm.FormC);
+            
+            // Replace spaces with hyphens, remove special chars
+            str = Regex.Replace(str, @"\s+", "-");
             str = Regex.Replace(str, @"[^a-zA-Z0-9\-]", "");
-            return str;
+            
+            // Remove multiple consecutive hyphens
+            str = Regex.Replace(str, @"-+", "-");
+            str = str.Trim('-');
+            
+            return string.IsNullOrEmpty(str) ? "unknown" : str;
         }
 
         private async Task LoadDropdowns(int? selectedGenreId = null)

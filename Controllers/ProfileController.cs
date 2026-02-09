@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace CuaHangBangDiaNhac.Controllers
 {
@@ -90,45 +91,8 @@ namespace CuaHangBangDiaNhac.Controllers
                 // Handle Avatar Upload
                 if (model.AvatarFile != null)
                 {
-                    string uploadsFolder = Path.Combine(_environment.WebRootPath, "images", "users");
-                    if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
-
-                    string extension = Path.GetExtension(model.AvatarFile.FileName);
-                    string username = user.UserName; // Username is already updated above if changed
-                    
-                    // Logic to find next index: username_1, username_2...
-                    int nextIndex = 1;
-                    var existingFiles = Directory.GetFiles(uploadsFolder, $"{username}_*{extension}");
-                    
-                    foreach (var file in existingFiles)
-                    {
-                        string fileName = Path.GetFileNameWithoutExtension(file);
-                        // Expected format: username_1
-                        string[] parts = fileName.Split('_');
-                        if (parts.Length > 0)
-                        {
-                            // Get the last part as number
-                            string lastPart = parts[parts.Length - 1];
-                            if (int.TryParse(lastPart, out int index))
-                            {
-                                if (index >= nextIndex) nextIndex = index + 1;
-                            }
-                        }
-                    }
-
-                    string newFileName = $"{username}_{nextIndex}{extension}";
-                    string filePath = Path.Combine(uploadsFolder, newFileName);
-
-                    using (var fileStream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await model.AvatarFile.CopyToAsync(fileStream);
-                    }
-
-                    // Delete old avatar if it exists? 
-                    // User didn't ask to delete, but typically proper cleanup is good. 
-                    // However, keeping history seems implied by "1, 2, 3". I will leave old files.
-                    
-                    user.AvatarUrl = "/images/users/" + newFileName;
+                    var savedUrl = await SaveAvatarFile(user, model.AvatarFile);
+                    user.AvatarUrl = savedUrl;
                 }
 
                 var result = await _userManager.UpdateAsync(user);
@@ -407,6 +371,57 @@ namespace CuaHangBangDiaNhac.Controllers
             }
 
             return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UploadAvatar(IFormFile avatarFile)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            if (avatarFile == null || avatarFile.Length == 0)
+                return BadRequest(new { success = false, message = "Chưa chọn file ảnh." });
+
+            var savedUrl = await SaveAvatarFile(user, avatarFile);
+            user.AvatarUrl = savedUrl;
+            var result = await _userManager.UpdateAsync(user);
+
+            if (result.Succeeded)
+            {
+                await _signInManager.RefreshSignInAsync(user);
+                return Json(new { success = true, url = savedUrl });
+            }
+
+            var error = result.Errors.FirstOrDefault()?.Description ?? "Cập nhật thất bại.";
+            return BadRequest(new { success = false, message = error });
+        }
+
+        private async Task<string> SaveAvatarFile(User user, IFormFile avatarFile)
+        {
+            string uploadsFolder = Path.Combine(_environment.WebRootPath, "images", "users");
+            if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+
+            string extension = Path.GetExtension(avatarFile.FileName);
+            string username = user.UserName ?? "user";
+
+            int nextIndex = 1;
+            var existingFiles = Directory.GetFiles(uploadsFolder, $"{username}_*{extension}");
+            foreach (var file in existingFiles)
+            {
+                var fileName = Path.GetFileNameWithoutExtension(file);
+                var parts = fileName.Split('_');
+                var lastPart = parts.LastOrDefault();
+                if (int.TryParse(lastPart, out int idx) && idx >= nextIndex) nextIndex = idx + 1;
+            }
+
+            string newFileName = $"{username}_{nextIndex}{extension}";
+            string filePath = Path.Combine(uploadsFolder, newFileName);
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await avatarFile.CopyToAsync(fileStream);
+            }
+
+            return "/images/users/" + newFileName;
         }
     }
 }

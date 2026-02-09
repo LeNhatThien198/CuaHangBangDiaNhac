@@ -12,7 +12,6 @@
              The partial has <label for="avatarInput">. We need the input here.
         -->
         <input type="hidden" asp-for="Id" />
-        <input type="file" name="avatarFile" id="avatarInput" class="d-none" accept="image/*" onchange="previewAvatar(this)">
         
         <!-- 4. Content Area (Minimal Forms) -->
         <div class="container-fluid artist-content">
@@ -126,16 +125,6 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script>
-        function previewAvatar(input) {
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
-                reader.onload = function (e) {
-                    document.getElementById('avatarPreview').src = e.target.result;
-                }
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-        
         // SweetAlert for Success Message
         @if (TempData["SuccessMessage"] != null)
         {

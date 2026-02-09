@@ -28,6 +28,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Overlay Elements
     const overlay = document.getElementById("imgViewerOverlay");
     const viewerImg = document.getElementById("viewerImage");
+    const viewerContent = document.querySelector(".viewer-content-wrapper");
     const closeBtn = document.getElementById("viewerCloseBtn");
     const viewerThumbs = document.querySelectorAll(".viewer-thumb");
 
@@ -78,6 +79,13 @@ document.addEventListener("DOMContentLoaded", function () {
             // Show Overlay
             overlay.style.display = "flex";
             document.body.style.overflow = "hidden"; // Prevent scrolling
+        });
+
+        // Toggle zoom on viewer image
+        viewerImg.addEventListener("click", (e) => {
+            e.stopPropagation();
+            viewerImg.classList.toggle("viewer-zoomed");
+            viewerContent?.classList.toggle("viewer-zooming");
         });
 
         // Close Logic

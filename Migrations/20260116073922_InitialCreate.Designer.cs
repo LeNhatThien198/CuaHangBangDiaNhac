@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CuaHangBangDiaNhac.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251212083151_InitialCreate")]
+    [Migration("20260116073922_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -92,6 +92,52 @@ namespace CuaHangBangDiaNhac.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Artists");
+                });
+
+            modelBuilder.Entity("CuaHangBangDiaNhac.Models.AuditLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int?>("EntityId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EntityName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("IPAddress")
+                        .HasMaxLength(45)
+                        .HasColumnType("nvarchar(45)");
+
+                    b.Property<string>("NewValue")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("OldValue")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AuditLogs");
                 });
 
             modelBuilder.Entity("CuaHangBangDiaNhac.Models.Brand", b =>
@@ -178,6 +224,47 @@ namespace CuaHangBangDiaNhac.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("CuaHangBangDiaNhac.Models.DigitalAsset", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AssetType")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("AudioQuality")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("FileUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("HasWatermark")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("ReleaseVersionId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("TokenExpiry")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReleaseVersionId")
+                        .IsUnique();
+
+                    b.ToTable("DigitalAssets");
+                });
+
             modelBuilder.Entity("CuaHangBangDiaNhac.Models.Genre", b =>
                 {
                     b.Property<int>("Id")
@@ -194,6 +281,42 @@ namespace CuaHangBangDiaNhac.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Genres");
+                });
+
+            modelBuilder.Entity("CuaHangBangDiaNhac.Models.ModeratorTicket", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModeratorId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("ResolvedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ModeratorId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ModeratorTickets");
                 });
 
             modelBuilder.Entity("CuaHangBangDiaNhac.Models.Order", b =>
@@ -315,6 +438,9 @@ namespace CuaHangBangDiaNhac.Migrations
                     b.Property<int>("GenreId")
                         .HasColumnType("int");
 
+                    b.Property<bool>("HasMultipleVersions")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsPreOrder")
                         .HasColumnType("bit");
 
@@ -398,6 +524,44 @@ namespace CuaHangBangDiaNhac.Migrations
                     b.ToTable("ProductImages");
                 });
 
+            modelBuilder.Entity("CuaHangBangDiaNhac.Models.ReleaseVersion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Barcode")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("Condition")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("ReleaseDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("VersionType")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ReleaseVersions");
+                });
+
             modelBuilder.Entity("CuaHangBangDiaNhac.Models.Style", b =>
                 {
                     b.Property<int>("Id")
@@ -419,6 +583,41 @@ namespace CuaHangBangDiaNhac.Migrations
                     b.HasIndex("GenreId");
 
                     b.ToTable("Styles");
+                });
+
+            modelBuilder.Entity("CuaHangBangDiaNhac.Models.Track", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Duration")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PreviewUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ReleaseVersionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("TrackNumber")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReleaseVersionId");
+
+                    b.ToTable("Tracks");
                 });
 
             modelBuilder.Entity("CuaHangBangDiaNhac.Models.User", b =>
@@ -497,6 +696,52 @@ namespace CuaHangBangDiaNhac.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("Users", (string)null);
+                });
+
+            modelBuilder.Entity("CuaHangBangDiaNhac.Models.UserSupportTicket", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AssignedToId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ResolvedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssignedToId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserSupportTickets");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -662,6 +907,16 @@ namespace CuaHangBangDiaNhac.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("CuaHangBangDiaNhac.Models.AuditLog", b =>
+                {
+                    b.HasOne("CuaHangBangDiaNhac.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("CuaHangBangDiaNhac.Models.Cart", b =>
                 {
                     b.HasOne("CuaHangBangDiaNhac.Models.User", "User")
@@ -688,6 +943,35 @@ namespace CuaHangBangDiaNhac.Migrations
                         .IsRequired();
 
                     b.Navigation("Cart");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("CuaHangBangDiaNhac.Models.DigitalAsset", b =>
+                {
+                    b.HasOne("CuaHangBangDiaNhac.Models.ReleaseVersion", "ReleaseVersion")
+                        .WithOne("DigitalAsset")
+                        .HasForeignKey("CuaHangBangDiaNhac.Models.DigitalAsset", "ReleaseVersionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ReleaseVersion");
+                });
+
+            modelBuilder.Entity("CuaHangBangDiaNhac.Models.ModeratorTicket", b =>
+                {
+                    b.HasOne("CuaHangBangDiaNhac.Models.User", "Moderator")
+                        .WithMany()
+                        .HasForeignKey("ModeratorId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("CuaHangBangDiaNhac.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Moderator");
 
                     b.Navigation("Product");
                 });
@@ -779,6 +1063,17 @@ namespace CuaHangBangDiaNhac.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("CuaHangBangDiaNhac.Models.ReleaseVersion", b =>
+                {
+                    b.HasOne("CuaHangBangDiaNhac.Models.Product", "Product")
+                        .WithMany("ReleaseVersions")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("CuaHangBangDiaNhac.Models.Style", b =>
                 {
                     b.HasOne("CuaHangBangDiaNhac.Models.Genre", "Genre")
@@ -788,6 +1083,35 @@ namespace CuaHangBangDiaNhac.Migrations
                         .IsRequired();
 
                     b.Navigation("Genre");
+                });
+
+            modelBuilder.Entity("CuaHangBangDiaNhac.Models.Track", b =>
+                {
+                    b.HasOne("CuaHangBangDiaNhac.Models.ReleaseVersion", "ReleaseVersion")
+                        .WithMany("Tracks")
+                        .HasForeignKey("ReleaseVersionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ReleaseVersion");
+                });
+
+            modelBuilder.Entity("CuaHangBangDiaNhac.Models.UserSupportTicket", b =>
+                {
+                    b.HasOne("CuaHangBangDiaNhac.Models.User", "AssignedTo")
+                        .WithMany()
+                        .HasForeignKey("AssignedToId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("CuaHangBangDiaNhac.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AssignedTo");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -876,6 +1200,15 @@ namespace CuaHangBangDiaNhac.Migrations
             modelBuilder.Entity("CuaHangBangDiaNhac.Models.Product", b =>
                 {
                     b.Navigation("Images");
+
+                    b.Navigation("ReleaseVersions");
+                });
+
+            modelBuilder.Entity("CuaHangBangDiaNhac.Models.ReleaseVersion", b =>
+                {
+                    b.Navigation("DigitalAsset");
+
+                    b.Navigation("Tracks");
                 });
 
             modelBuilder.Entity("CuaHangBangDiaNhac.Models.Style", b =>

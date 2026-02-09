@@ -1,0 +1,100 @@
+@model IEnumerable<CuaHangBangDiaNhac.Models.UserSupportTicket>
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["Title"] = "Vé hỗ trợ người dùng";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>Vé hỗ trợ người dùng</h2>
+        </div>
+        <div class="col-md-4 text-end">
+            <span class="badge bg-info">@(Model?.Count() ?? 0) vé</span>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Tiêu đề</th>
+                    <th>Người dùng</th>
+                    <th>Mức độ ưu tiên</th>
+                    <th>Trạng thái</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ticket in Model ?? new List<CuaHangBangDiaNhac.Models.UserSupportTicket>())
+                {
+                    <tr>
+                        <td>@ticket.Id</td>
+                        <td>@ticket.Title</td>
+                        <td>@ticket.User?.UserName</td>
+                        <td>
+                            <span class="badge @GetPriorityBadge(ticket.Priority.ToString())">
+                                @ticket.Priority
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge @GetStatusBadge(ticket.Status.ToString())">
+                                @ticket.Status
+                            </span>
+                        </td>
+                        <td>
+                            <a href="@Url.Action("Detail", "UserSupportTicketView", new { id = ticket.Id, area = "Admin" })" 
+                               class="btn btn-sm btn-primary">
+                                Xem chi tiết
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (!Model?.Any() ?? true)
+    {
+        <div class="alert alert-info">
+            Không có vé hỗ trợ nào.
+        </div>
+    }
+</div>
+
+@functions {
+    string GetPriorityBadge(string priority)
+    {
+        return priority switch
+        {
+            "High" => "bg-danger",
+            "Medium" => "bg-warning",
+            "Low" => "bg-info",
+            _ => "bg-secondary"
+        };
+    }
+
+    string GetStatusBadge(string status)
+    {
+        return status switch
+        {
+            "Open" => "bg-danger",
+            "InProgress" => "bg-warning",
+            "Resolved" => "bg-success",
+            "Closed" => "bg-secondary",
+            _ => "bg-secondary"
+        };
+    }
+}
+
+<script src="~/lib/signalr/signalr.js"></script>
+<script>
+const connection = new signalR.HubConnectionBuilder()
+    .withUrl("/ticketHub")
+    .withAutomaticReconnect()
+    .build();
+
+connection.on("NewSupportTicketAdded", () => location.reload());
+connection.start().catch(err => console.log(err));
+</script>

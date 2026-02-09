@@ -1,0 +1,48 @@
+@model CuaHangBangDiaNhac.Models.ModeratorTicket
+@{
+    ViewData["Title"] = $"Ticket #{Model?.Id} - {Model?.Status}";
+}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8">
+            <h3>Ticket #@Model?.Id</h3>
+            <div class="card">
+                <div class="card-header"><h5>Product Information</h5></div>
+                <div class="card-body">
+                    <p><strong>Product Name:</strong> @Model?.Product?.Name</p>
+                    <p><strong>Description:</strong> @Model?.Product?.Description</p>
+                    <p><strong>Status:</strong> <span class="badge bg-warning">@Model?.Status</span></p>
+                    <p><strong>Submitted:</strong> @Model?.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+                </div>
+            </div>
+            @if (Model?.Status.ToString() == "Pending")
+            {
+                <div class="card mt-3">
+                    <div class="card-header"><h5>Action</h5></div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="reason" class="form-label">Reason (for rejection)</label>
+                            <textarea class="form-control" id="reason" rows="3"></textarea>
+                        </div>
+                        <button type="button" class="btn btn-success" onclick="approveTicket(@Model?.Id)">Approve</button>
+                        <button type="button" class="btn btn-danger" onclick="rejectTicket(@Model?.Id)">Reject</button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+function approveTicket(id){
+    $.post(`/Admin/ModeratorTicket/${id}/approve`)
+     .done(r=>{ if(r.success){ Swal.fire('Success','Ticket approved','success'); setTimeout(()=>location.reload(),800);} })
+     .fail(e=>Swal.fire('Error', e.responseJSON?.message||'Failed','error'));
+}
+function rejectTicket(id){
+    const reason = $('#reason').val();
+    $.ajax({url:`/Admin/ModeratorTicket/${id}/reject`,type:'POST',contentType:'application/json',data:JSON.stringify({reason})})
+     .done(r=>{ if(r.success){ Swal.fire('Success','Ticket rejected','success'); setTimeout(()=>location.reload(),800);} })
+     .fail(e=>Swal.fire('Error', e.responseJSON?.message||'Failed','error'));
+}
+</script>

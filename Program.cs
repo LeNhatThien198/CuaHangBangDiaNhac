@@ -18,6 +18,11 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddAuthServices(builder.Configuration);
 
+builder.Services.AddRepositories();
+builder.Services.AddBusinessServices();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSignalR();
+
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddTransient<IEmailSender, EmailSender>();
@@ -32,25 +37,28 @@ builder.Services.AddSession(options =>
 
 var app = builder.Build();
 
+// Seed database
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+        context.Database.Migrate();
+        
+        await DataSeeder.SeedDataAsync(services);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while seeding the database.");
+    }
+}
+
 if (args.Length > 0)
 {
     await CliHandler.Handle(args, app);
     return; 
-}
-
-// Seed Data on Startup
-try
-{
-    using (var scope = app.Services.CreateScope())
-    {
-        var services = scope.ServiceProvider;
-        await DataSeeder.SeedDataAsync(services);
-    }
-}
-catch (Exception ex)
-{
-    Console.WriteLine("An error occurred while seeding the database: " + ex.Message);
-    // Continue execution to let it run (or fail gracefully with log)
 }
 
 if (app.Environment.IsDevelopment())
@@ -72,6 +80,10 @@ app.UseSession(); // Must be before Authentication
 
 app.UseAuthentication(); 
 app.UseAuthorization();  
+
+app.MapHub<CuaHangBangDiaNhac.Hubs.TicketHub>("/ticketHub");
+app.MapHub<CuaHangBangDiaNhac.Hubs.AuditLogHub>("/auditHub");
+app.MapHub<CuaHangBangDiaNhac.Hubs.NotificationHub>("/notificationHub");
 
 app.MapControllerRoute(
     name: "areas",

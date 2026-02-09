@@ -128,7 +128,6 @@ public class DataSeeder
             var pop = await context.Genres.FirstAsync(g => g.Name == "Pop");
             var folkCountry = await context.Genres.FirstAsync(g => g.Name == "Folk & Country");
 
-
             var sGrunge = await context.Styles.FirstAsync(s => s.Name == "Grunge");
             var sAltRock = await context.Styles.FirstAsync(s => s.Name == "Alternative Rock");
             var sThrash = await context.Styles.FirstAsync(s => s.Name == "Thrash Metal");
@@ -425,7 +424,7 @@ public class DataSeeder
                     Brand = reprise,
                     Category = vinyl,
                     Genre = folkCountry,
-                    Style = sFolkRock, // note: sFolkRock existing under "Folk & Country" earlier; ensure variable exists in context in original file (if not, you can add mapping accordingly)
+                    Style = sFolkRock,
                     Tracklist = "Side 1: \n1. Out on the Weekend\n2. Harvest\n3. A Man Needs a Maid\n4. Heart of Gold\n5. Are You Ready for the Country?\n\nSide 2: \n1. Old Man\n2. There's a World\n3. Alabama\n4. The Needle and the Damage Done\n5. Words (Between the Lines of Age)",
                     Images = new List<ProductImage> {
                         new ProductImage { Url = "/images/products/NeilYoung/Harvest/cover/c.jpg", IsPrimary = true, DisplayOrder = 1 },
@@ -440,5 +439,94 @@ public class DataSeeder
             await context.Products.AddRangeAsync(products);
             await context.SaveChangesAsync();
         }
+
+        // Get users for seeding tickets
+        var firstUser = await context.Users.FirstOrDefaultAsync();
+        var secondUser = firstUser != null 
+            ? await context.Users.Where(u => u.Email != firstUser.Email).FirstOrDefaultAsync()
+            : null;
+        
+        // Seed ModeratorTickets
+        if (!context.ModeratorTickets.Any())
+        {
+            var products = await context.Products.Take(2).ToListAsync();
+            var moderatorTickets = new List<CuaHangBangDiaNhac.Models.ModeratorTicket>
+            {
+                new CuaHangBangDiaNhac.Models.ModeratorTicket
+                {
+                    ProductId = products.FirstOrDefault()?.Id ?? 1,
+                    Status = CuaHangBangDiaNhac.Models.TicketStatus.Pending,
+                    CreatedAt = DateTime.UtcNow.AddDays(-2),
+                    ModeratorId = null
+                },
+                new CuaHangBangDiaNhac.Models.ModeratorTicket
+                {
+                    ProductId = products.LastOrDefault()?.Id ?? 2,
+                    Status = CuaHangBangDiaNhac.Models.TicketStatus.Pending,
+                    CreatedAt = DateTime.UtcNow.AddDays(-1),
+                    ModeratorId = null
+                }
+            };
+            await context.ModeratorTickets.AddRangeAsync(moderatorTickets);
+        }
+
+        // Seed UserSupportTickets
+        if (!context.UserSupportTickets.Any() && firstUser != null && secondUser != null)
+        {
+            var supportTickets = new List<CuaHangBangDiaNhac.Models.UserSupportTicket>
+            {
+                new CuaHangBangDiaNhac.Models.UserSupportTicket
+                {
+                    Title = "Sản phẩm bị hỏng",
+                    Description = "Đĩa nhạc bị trầy khi nhận hàng",
+                    UserId = firstUser.Id,
+                    Priority = CuaHangBangDiaNhac.Models.SupportPriority.High,
+                    Status = CuaHangBangDiaNhac.Models.SupportStatus.Open,
+                    CreatedAt = DateTime.UtcNow.AddDays(-3),
+                    AssignedToId = null
+                },
+                new CuaHangBangDiaNhac.Models.UserSupportTicket
+                {
+                    Title = "Hỏi về giá bán",
+                    Description = "Tại sao giá sản phẩm này mắc vậy?",
+                    UserId = secondUser.Id,
+                    Priority = CuaHangBangDiaNhac.Models.SupportPriority.Low,
+                    Status = CuaHangBangDiaNhac.Models.SupportStatus.Open,
+                    CreatedAt = DateTime.UtcNow.AddDays(-1),
+                    AssignedToId = null
+                }
+            };
+            await context.UserSupportTickets.AddRangeAsync(supportTickets);
+        }
+
+        // Seed AuditLogs
+        if (!context.AuditLogs.Any() && firstUser != null && secondUser != null)
+        {
+            var products = await context.Products.Take(2).ToListAsync();
+            var auditLogs = new List<CuaHangBangDiaNhac.Models.AuditLog>
+            {
+                new CuaHangBangDiaNhac.Models.AuditLog
+                {
+                    Action = "Create",
+                    EntityName = "Product",
+                    EntityId = products.FirstOrDefault()?.Id ?? 1,
+                    UserId = firstUser.Id,
+                    Timestamp = DateTime.UtcNow.AddDays(-5),
+                    IPAddress = "127.0.0.1"
+                },
+                new CuaHangBangDiaNhac.Models.AuditLog
+                {
+                    Action = "Update",
+                    EntityName = "Product",
+                    EntityId = products.FirstOrDefault()?.Id ?? 1,
+                    UserId = secondUser.Id,
+                    Timestamp = DateTime.UtcNow.AddDays(-2),
+                    IPAddress = "127.0.0.1"
+                }
+            };
+            await context.AuditLogs.AddRangeAsync(auditLogs);
+        }
+
+        await context.SaveChangesAsync();
     }
 }

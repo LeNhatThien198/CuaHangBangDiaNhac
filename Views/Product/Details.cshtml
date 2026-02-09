@@ -2,6 +2,26 @@
 @{
     ViewData["Title"] = Model.Product.Name;
     var primaryImg = Model.Product.Images?.FirstOrDefault(i => i.IsPrimary)?.Url ?? "/images/no-image.png";
+    var spotifyAlbums = new Dictionary<string, string>
+    {
+        { "Nevermind", "2UJcKiJxNryhL050F5Z1Fk" },
+        { "Master of Puppets", "2Lq2qX3hYhiuPckC8Flj21" },
+        { "Abbey Road", "0ETFjACtuP2ADo6LFhL6HN" },
+        { "Hybrid Theory", "6hPkbAV3ZXpGZBGUvL6jVM" },
+        { "OK Computer", "6dVIqQ8qmQ5GBnJ9shOYGE" },
+        { "Imagine", "0xzaemKucrJpYhyl7TltAk" },
+        { "Goodbye Yellow Brick Road", "5WupqgR68HfuHt3BMJtgun" },
+        { "Harvest", "2l3QxNo4QubBNmVKxLeum0" },
+        { "In Utero", "7wOOA7l306K8HfBKfPoafr" },
+        { "Bảo Tàng Của Nuối Tiếc", "3pprs1r3mH3UhU23TUHBWJ" },
+        { "Qua Khung Cửa Sổ", "7FbJRg2IYkVJioqMayEukG" },
+        { "KIM", "6Wcebv3aqhe7CefwXViBqB" },
+        { "Gieo", "1ZnJrvDY8ih3ppPWR2Tc2a" },
+        { "Rừng Đom Đóm", "68bMwerbq9axDV5m1wZYAn" },
+        { "Hiệu Ứng Trốn Chạy", "3R5akUPAj9TSF3libyyeTN" }
+    };
+    var albumName = Model.Product.Name.Split('(')[0].Trim();
+    var hasSpotify = spotifyAlbums.TryGetValue(albumName, out var spotifyId);
 }
 
 @section Scripts {
@@ -279,6 +299,22 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+        }
+        @if (hasSpotify)
+        {
+            <div class="spotify-section mt-4 p-4 bg-dark rounded">
+                <h5 class="mb-3 text-white"><i class="bi bi-spotify text-success me-2"></i>Nghe trên Spotify</h5>
+                <iframe
+                    style="border-radius:12px"
+                    src="https://open.spotify.com/embed/album/@spotifyId?utm_source=generator&theme=0"
+                    width="100%"
+                    height="352"
+                    frameBorder="0"
+                    allowfullscreen=""
+                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                    loading="lazy">
+                </iframe>
             </div>
         }
 

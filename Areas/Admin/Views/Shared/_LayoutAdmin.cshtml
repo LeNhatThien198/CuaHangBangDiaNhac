@@ -142,20 +142,31 @@
 
                 <a class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Order" ? "active" : "")"
                    asp-area="Admin" asp-controller="Order" asp-action="Index">
-                    <span class="position-relative d-inline-block">
-                        <i class="bi bi-cart"></i>
-                        @if (pendingOrdersCount > 0)
-                        {
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-danger border border-light" style="font-size: 0.6em; padding: 0.35em;">
-                                @pendingOrdersCount
-                            </span>
-                        }
-                    </span>
-                    <span class="menu-text ms-2">Đơn hàng</span>
-                    <span class="mini-label ms-2">Đơn hàng</span>
+                    <i class="bi bi-cart"></i>
+                    <span class="menu-text">Đơn hàng</span>
+                    <span class="mini-label">Đơn hàng</span>
                 </a>
 
+                <a class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["Controller"]?.ToString() == "ModeratorTicketView" ? "active" : "")"
+                   asp-area="Admin" asp-controller="ModeratorTicketView" asp-action="Index">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="menu-text">Vé kiểm duyệt</span>
+                    <span class="mini-label">Kiểm duyệt</span>
+                </a>
 
+                <a class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["Controller"]?.ToString() == "UserSupportTicketView" ? "active" : "")"
+                   asp-area="Admin" asp-controller="UserSupportTicketView" asp-action="Index">
+                    <i class="bi bi-headset"></i>
+                    <span class="menu-text">Vé hỗ trợ</span>
+                    <span class="mini-label">Hỗ trợ</span>
+                </a>
+
+                <a class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["Controller"]?.ToString() == "AuditLogView" ? "active" : "")"
+                   asp-area="Admin" asp-controller="AuditLogView" asp-action="Index">
+                    <i class="bi bi-clock-history"></i>
+                    <span class="menu-text">Nhật ký kiểm toán</span>
+                    <span class="mini-label">Nhật ký</span>
+                </a>
             </div>
         </div>
 

@@ -1,0 +1,118 @@
+@model CuaHangBangDiaNhac.Models.UserSupportTicket
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["Title"] = "Chi tiết vé hỗ trợ";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>Vé hỗ trợ #@Model?.Id</h2>
+        </div>
+        <div class="col-md-4 text-end">
+            <span class="badge @GetStatusBadge(Model?.Status.ToString())">@Model?.Status</span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5>@Model?.Title</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label"><strong>Người dùng:</strong></label>
+                            <p>@Model?.User?.UserName</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label"><strong>Mức độ ưu tiên:</strong></label>
+                            <p>
+                                <span class="badge @GetPriorityBadge(Model?.Priority.ToString())">
+                                    @Model?.Priority
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label"><strong>Ngày tạo:</strong></label>
+                            <p>@Model?.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label"><strong>Gán cho:</strong></label>
+                            <p>@(Model?.AssignedTo?.UserName ?? "Chưa gán")</p>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Nội dung:</strong></label>
+                        <p class="border p-3 bg-light">@Model?.Description</p>
+                    </div>
+
+                    @if (Model?.ResolvedAt.HasValue ?? false)
+                    {
+                        <div class="alert alert-success">
+                            Giải quyết lúc: @Model.ResolvedAt?.ToString("dd/MM/yyyy HH:mm")
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Hành động</h5>
+                </div>
+                <div class="card-body d-flex flex-column gap-2">
+                    <button type="button" class="btn btn-info" onclick="assignTicket(@Model?.Id)">
+                        <i class="bi bi-person-plus"></i> Nhận vé
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="resolveTicket(@Model?.Id)">
+                        <i class="bi bi-check"></i> Giải quyết
+                    </button>
+                    <a href="@Url.Action("Index", "UserSupportTicketView", new { area = "Admin" })" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Quay lại
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetPriorityBadge(string priority)
+    {
+        return priority switch
+        {
+            "High" => "bg-danger",
+            "Medium" => "bg-warning",
+            "Low" => "bg-info",
+            _ => "bg-secondary"
+        };
+    }
+
+    string GetStatusBadge(string status)
+    {
+        return status switch
+        {
+            "Open" => "bg-danger",
+            "InProgress" => "bg-warning",
+            "Resolved" => "bg-success",
+            "Closed" => "bg-secondary",
+            _ => "bg-secondary"
+        };
+    }
+}
+
+<script>
+function assignTicket(id) {
+    Swal.fire('Thông báo', 'Vé đã được gán cho bạn.', 'success');
+}
+function resolveTicket(id) {
+    Swal.fire('Thông báo', 'Vé đã được đánh dấu là giải quyết.', 'success');
+}
+</script>

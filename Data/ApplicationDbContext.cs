@@ -8,7 +8,9 @@ namespace CuaHangBangDiaNhac.Data
     public class ApplicationDbContext : IdentityDbContext<User>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options) { }
+            : base(options)
+        {
+        }
 
         public DbSet<Product> Products { get; set; } = null!;
         public DbSet<Category> Categories { get; set; } = null!;
@@ -27,6 +29,41 @@ namespace CuaHangBangDiaNhac.Data
         public DbSet<OrderItem> OrderItems { get; set; } = null!;
 
         public DbSet<Address> Addresses { get; set; } = null!;
+        public DbSet<Track> Tracks { get; set; } = null!;
+        public DbSet<ReleaseVersion> ReleaseVersions { get; set; } = null!;
+        public DbSet<DigitalAsset> DigitalAssets { get; set; } = null!;
+        public DbSet<AuditLog> AuditLogs { get; set; } = null!;
+        public DbSet<ModeratorTicket> ModeratorTickets { get; set; } = null!;
+        public DbSet<UserSupportTicket> UserSupportTickets { get; set; } = null!;
+
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            var entries = ChangeTracker.Entries();
+            
+            foreach (var entry in entries)
+            {
+                // Note: Auto-audit logging framework
+                // Full implementation deferred to Phase 3 to avoid circular dependency
+                // with AuditLogService. Currently using manual logging in Controllers/Services.
+                
+                if (entry.State == EntityState.Added)
+                {
+                    if (entry.Entity is IAuditableEntity auditableEntity)
+                    {
+                        auditableEntity.CreatedAt = DateTime.UtcNow;
+                    }
+                }
+                else if (entry.State == EntityState.Modified)
+                {
+                    if (entry.Entity is IAuditableEntity auditableEntity)
+                    {
+                        auditableEntity.UpdatedAt = DateTime.UtcNow;
+                    }
+                }
+            }
+
+            return await base.SaveChangesAsync(cancellationToken);
+        }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -41,12 +78,79 @@ namespace CuaHangBangDiaNhac.Data
                 }
             }
 
-            builder.Entity<Product>().Property(p => p.Price).HasPrecision(18, 2);
-            builder.Entity<Product>().Property(p => p.Cost).HasPrecision(18, 2); 
+            // Configure decimal precision for monetary fields
+            builder.Entity<Product>()
+                .Property(p => p.Price)
+                .HasPrecision(18, 2);
+
+            builder.Entity<Product>()
+                .Property(p => p.PromotionPrice)
+                .HasPrecision(18, 2);
+
+            builder.Entity<Product>()
+                .Property(p => p.Cost)
+                .HasPrecision(18, 2);
+
             builder.Entity<Order>().Property(o => o.ShippingFee).HasPrecision(18, 2);
             builder.Entity<Order>().Property(o => o.Discount).HasPrecision(18, 2);
             builder.Entity<Order>().Property(o => o.DepositAmount).HasPrecision(18, 2);
             builder.Entity<OrderItem>().Property(oi => oi.UnitPrice).HasPrecision(18, 2);
+
+            // ReleaseVersion → Product (Restrict on delete)
+            builder.Entity<ReleaseVersion>()
+                .HasOne(rv => rv.Product)
+                .WithMany(p => p.ReleaseVersions)
+                .HasForeignKey(rv => rv.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ReleaseVersion → Track (Cascade delete)
+            builder.Entity<ReleaseVersion>()
+                .HasMany(rv => rv.Tracks)
+                .WithOne(t => t.ReleaseVersion)
+                .HasForeignKey(t => t.ReleaseVersionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // ReleaseVersion → DigitalAsset (Cascade delete)
+            builder.Entity<ReleaseVersion>()
+                .HasOne(rv => rv.DigitalAsset)
+                .WithOne(da => da.ReleaseVersion)
+                .HasForeignKey<DigitalAsset>(da => da.ReleaseVersionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // ModeratorTicket → Product (Restrict on delete)
+            builder.Entity<ModeratorTicket>()
+                .HasOne(mt => mt.Product)
+                .WithMany()
+                .HasForeignKey(mt => mt.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ModeratorTicket → User (Moderator)
+            builder.Entity<ModeratorTicket>()
+                .HasOne(mt => mt.Moderator)
+                .WithMany()
+                .HasForeignKey(mt => mt.ModeratorId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // UserSupportTicket → User (Creator)
+            builder.Entity<UserSupportTicket>()
+                .HasOne(ust => ust.User)
+                .WithMany()
+                .HasForeignKey(ust => ust.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // UserSupportTicket → User (AssignedTo)
+            builder.Entity<UserSupportTicket>()
+                .HasOne(ust => ust.AssignedTo)
+                .WithMany()
+                .HasForeignKey(ust => ust.AssignedToId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // AuditLog → User
+            builder.Entity<AuditLog>()
+                .HasOne(al => al.User)
+                .WithMany()
+                .HasForeignKey(al => al.UserId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             builder.Entity<Order>()
                 .HasOne(o => o.User)
@@ -102,5 +206,12 @@ namespace CuaHangBangDiaNhac.Data
                 }
             );
         }
+    }
+
+    // Marker interface for auditable entities
+    public interface IAuditableEntity
+    {
+        DateTime CreatedAt { get; set; }
+        DateTime? UpdatedAt { get; set; }
     }
 }

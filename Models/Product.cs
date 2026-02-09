@@ -11,7 +11,7 @@ namespace CuaHangBangDiaNhac.Models
         [Required(ErrorMessage = "Vui lòng nhập tên sản phẩm")]
         [MaxLength(200, ErrorMessage = "{0} tối đa {1} ký tự")]
         [Display(Name = "Tên sản phẩm")]
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
         [MaxLength(2000, ErrorMessage = "{0} tối đa {1} ký tự")]
         [Display(Name = "Mô tả")]
@@ -86,6 +86,11 @@ namespace CuaHangBangDiaNhac.Models
         public Style? Style { get; set; }
 
         public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
+
+        [Display(Name = "Có nhiều phiên bản")]
+        public bool HasMultipleVersions { get; set; } = false;
+
+        public ICollection<ReleaseVersion> ReleaseVersions { get; set; } = new List<ReleaseVersion>();
 
         [NotMapped]
         public string DisplayName

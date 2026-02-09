@@ -1,0 +1,78 @@
+@model IEnumerable<CuaHangBangDiaNhac.Models.AuditLog>
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["Title"] = "Nhật ký kiểm toán";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>Nhật ký kiểm toán</h2>
+        </div>
+        <div class="col-md-4 text-end">
+            <span class="badge bg-info">@(Model?.Count() ?? 0) bản ghi</span>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover table-sm">
+            <thead class="table-light">
+                <tr>
+                    <th>Thời gian</th>
+                    <th>Hành động</th>
+                    <th>Entity</th>
+                    <th>ID Entity</th>
+                    <th>Người dùng</th>
+                    <th>Chi tiết</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var log in Model ?? new List<CuaHangBangDiaNhac.Models.AuditLog>())
+                {
+                    <tr>
+                        <td>@log.Timestamp.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                        <td>
+                            <span class="badge bg-primary">@log.Action</span>
+                        </td>
+                        <td>@log.EntityName</td>
+                        <td>@log.EntityId</td>
+                        <td>@log.UserId</td>
+                        <td>
+                            <small class="text-muted">
+                                @if (!string.IsNullOrEmpty(log.OldValue))
+                                {
+                                    <span>Từ: @log.OldValue | </span>
+                                }
+                                @if (!string.IsNullOrEmpty(log.NewValue))
+                                {
+                                    <span>Sang: @log.NewValue</span>
+                                }
+                            </small>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (!Model?.Any() ?? true)
+    {
+        <div class="alert alert-info">
+            Không có bản ghi nào.
+        </div>
+    }
+</div>
+
+<script src="~/lib/signalr/signalr.js"></script>
+<script>
+const connection = new signalR.HubConnectionBuilder().withUrl("/auditHub").withAutomaticReconnect().build();
+connection.on("NewAuditLogAdded",(log)=>{
+    const html = `<div class="border-bottom pb-2 mb-2">
+        <small class="text-muted">${new Date(log.timestamp).toLocaleString()}</small><br>
+        <strong>${log.action}</strong> - ${log.entityName} (ID: ${log.entityId})<br>
+        <span class="text-muted">User: ${log.userId}</span>
+    </div>`;
+    document.querySelector("#logContainer").insertAdjacentHTML("afterbegin", html);
+});
+connection.start().catch(err=>console.error(err));
+</script>

@@ -1,0 +1,71 @@
+@model IEnumerable<CuaHangBangDiaNhac.Models.ModeratorTicket>
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["Title"] = "Vé kiểm duyệt sản phẩm";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>Vé kiểm duyệt sản phẩm</h2>
+        </div>
+        <div class="col-md-4 text-end">
+            <span class="badge bg-warning">@(Model?.Count() ?? 0) vé</span>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Sản phẩm</th>
+                    <th>Trạng thái</th>
+                    <th>Ngày tạo</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ticket in Model ?? new List<CuaHangBangDiaNhac.Models.ModeratorTicket>())
+                {
+                    <tr>
+                        <td>@ticket.Id</td>
+                        <td>@ticket.Product?.Name</td>
+                        <td>
+                            <span class="badge @GetStatusBadge(ticket.Status.ToString())">
+                                @ticket.Status
+                            </span>
+                        </td>
+                        <td>@ticket.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>
+                            <a href="@Url.Action("Detail", "ModeratorTicketView", new { id = ticket.Id, area = "Admin" })" 
+                               class="btn btn-sm btn-primary">
+                                Xem chi tiết
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (!Model?.Any() ?? true)
+    {
+        <div class="alert alert-info">
+            Không có vé nào cần kiểm duyệt.
+        </div>
+    }
+</div>
+
+@functions {
+    string GetStatusBadge(string status)
+    {
+        return status switch
+        {
+            "Pending" => "bg-warning",
+            "Approved" => "bg-success",
+            "Rejected" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+}
